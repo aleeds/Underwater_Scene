@@ -1,10 +1,10 @@
 // Will be a fish that lives in 3D, so pos will be a 3-vector
-// they will however live inside a cylinder defined by the Fish_Colony that it
+// they will however live inside a circle defined by the Fish_Colony that it
 // lives in. This will mean that vel will also be a 3-vector, but interpreted
 // differently.
-// x coord will be the velocity away from the center
-// y coord will be the angular speed around the outside
-// z coord will be the speed down the cylinder.
+// the vel will be interpreted as spherical coordinates
+// the pos will also be spherical coordinates, and the drawing will happen with
+// respect to the center of the sphere
 // I will need to fiddle with the math.
 class Fish {
   PVector pos;
@@ -16,7 +16,7 @@ class Fish {
     size = size_;
   }
 
-  void Draw() {
+  void Draw(PVector pos) {
     // want this to be a texture mapped shape of some kind.
   }
 
@@ -42,7 +42,7 @@ class Fish_Colony {
   }
 
   void Draw() {
-    for (Fish fish : fishes) fish.Draw();
+    for (Fish fish : fishes) fish.Draw(pos);
   }
 
   void UpdatePositionFish() {
