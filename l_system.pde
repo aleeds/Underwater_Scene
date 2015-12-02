@@ -78,9 +78,9 @@ class FullSystem {
     start = str;
   }
 
-  void Draw(int i,len) {
+  void Draw(int i,int len) {
      String begin = start;
      for (int q = 0;q < i;++q) begin = FindRule(begin,rules).GetNext();
-     DrawL(begin,system,len)
+     DrawL(begin,lsystem,len);
   }
 }
