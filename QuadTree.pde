@@ -34,7 +34,7 @@ class QuadTree
   
   void update()
   {
-    t+=0.1f;
+    t+=0.01f;
   }
   
   void subdivideNE()
@@ -69,7 +69,7 @@ class QuadTree
     subdivideSW();
   }
   
-  void subdivideAll()
+  void subdivideAll() //used only to create more geometry
   {
     if(childNE != null)
     {
@@ -77,6 +77,18 @@ class QuadTree
       childNW.subdivideAll();
       childSE.subdivideAll();
       childSW.subdivideAll();
+    }
+    else
+    {
+      subdivide();
+    }
+  }
+  
+  void subdivideNWOnly()
+  {
+    if(childNW != null)
+    {
+      childNW.subdivideNWOnly();
     }
     else
     {
@@ -95,7 +107,15 @@ class QuadTree
     }
     else
     {
-//      println(heightFunction(center.x-sideLength/2.0, center.y-sideLength/2.0));
+      PVector[] waveDir = {new PVector(1,1,0), new PVector(-1,1,0), new PVector(0,1,0)};
+      float[] amplitude = {20.0, 3.0, 15.0};
+      float[] waveLength = {8.0, 6.0, 2.0};
+      float[] frequency = {3.0, 1.0, 5.0};
+      PVector NW = gerWave(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
+      PVector NE = gerWave(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
+      PVector SE = gerWave(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
+      PVector SW = gerWave(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
+      
       beginShape();
       vertex(center.x-sideLength/2.0,center.y-sideLength/2.0,heightFunction(center.x-sideLength/2.0, center.y-sideLength/2.0));
       vertex(center.x+sideLength/2.0,center.y-sideLength/2.0,heightFunction(center.x+sideLength/2.0, center.y-sideLength/2.0));
@@ -116,11 +136,10 @@ class QuadTree
     }
     else
     {
-//      println(heightFunction(center.x-sideLength/2.0, center.y-sideLength/2.0));
       update();
       PVector[] waveDir = {new PVector(1,1,0), new PVector(-1,1,0), new PVector(0,1,0)};
-      float[] amplitude = {40.0, 30.0, 27.0};
-      float[] waveLength = {8.0, 6.0, 5.0};
+      float[] amplitude = {20.0, 3.0, 15.0};
+      float[] waveLength = {8.0, 6.0, 2.0};
       float[] frequency = {3.0, 1.0, 5.0};
       PVector NW = gerWave(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
       PVector NE = gerWave(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
