@@ -20,7 +20,7 @@ void setup()
 
   root = new QuadTree(new Coordinate(0, 0, 0), 8000.0);
 
-  for(int i=0; i<5; i++) root.subdivideAll();
+  for(int i=0; i<6; i++) root.subdivideAll();
   dragged = rolled = false;
   prevAxis = new Vec3D(0,1,0);
 }

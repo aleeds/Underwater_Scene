@@ -111,10 +111,12 @@ class QuadTree
       float[] amplitude = {20.0, 3.0, 15.0};
       float[] waveLength = {8.0, 6.0, 2.0};
       float[] frequency = {3.0, 1.0, 5.0};
-      PVector NW = gerWave(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
-      PVector NE = gerWave(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
-      PVector SE = gerWave(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
-      PVector SW = gerWave(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
+      float[] phase = {1.0, 0.57};
+      PVector NW = gerWave(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+      PVector NE = gerWave(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+      PVector SE = gerWave(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+      PVector SW = gerWave(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+//      PVector NWN = gerWaveNormal(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
       
       beginShape();
       vertex(center.x-sideLength/2.0,center.y-sideLength/2.0,heightFunction(center.x-sideLength/2.0, center.y-sideLength/2.0));
@@ -141,10 +143,15 @@ class QuadTree
       float[] amplitude = {20.0, 3.0, 15.0};
       float[] waveLength = {8.0, 6.0, 2.0};
       float[] frequency = {3.0, 1.0, 5.0};
-      PVector NW = gerWave(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
-      PVector NE = gerWave(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
-      PVector SE = gerWave(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
-      PVector SW = gerWave(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
+      float[] phase = {1.0, 0.57, 2.0};
+      PVector NW = gerWave(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+      PVector NE = gerWave(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+      PVector SE = gerWave(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+      PVector SW = gerWave(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+      PVector NWN = gerWaveNormal(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+      stroke(255,0,0);
+      line(NW.x, NW.y, NW.z, NW.x+NWN.x, NW.y+NWN.y, NW.z+NWN.z);
+      noStroke();
       
       beginShape();
       vertex(NW.x, NW.y, NW.z);
