@@ -1,3 +1,4 @@
+
 // Will be a fish that lives in 3D, so pos will be a 3-vector
 // they will however live inside a circle defined by the Fish_Colony that it
 // lives in. This will mean that vel will also be a 3-vector, but interpreted
