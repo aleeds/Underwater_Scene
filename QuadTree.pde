@@ -139,18 +139,25 @@ class QuadTree
     else
     {
       update();
-      PVector[] waveDir = {new PVector(1,1,0), new PVector(-1,1,0), new PVector(0,1,0)};
-      float[] amplitude = {20.0, 3.0, 15.0};
-      float[] waveLength = {8.0, 6.0, 2.0};
-      float[] frequency = {3.0, 1.0, 5.0};
-      float[] phase = {1.0, 0.57, 2.0};
-      PVector NW = gerWave(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
-      PVector NE = gerWave(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
-      PVector SE = gerWave(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
-      PVector SW = gerWave(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
-      PVector NWN = gerWaveNormal(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
+//      PVector[] waveDir = {new PVector(1,1,0), new PVector(-1,1,0), new PVector(0,1,0)};
+//      float[] amplitude = {20.0, 3.0, 15.0};
+//      float[] waveLength = {8.0, 6.0, 2.0};
+//      float[] speed = {3.0, 1.0, 5.0};
+//      float[] phase = {1.0, 0.57, 2.0};
+
+      PVector[] waveDir = {new PVector(1,0,0)};
+      float[] amplitude = {80.0};
+      float[] waveLength = {30.0};
+      float[] speed = {6.0};
+      float[] sharpness = {0.85}; //value theoretically between 0 (no pointyness) and 1 (really pointy) but actually higher than ~ 0.96 creates weird results as basically dividing by 0, and lower than ~ 0.8 doesnt really do much, so may end up mapping
+
+      PVector NW = gerWaveOther(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, speed, sharpness);
+      PVector NE = gerWaveOther(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, speed, sharpness);
+      PVector SE = gerWaveOther(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, speed, sharpness);
+      PVector SW = gerWaveOther(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, speed, sharpness);
+      PVector NWN = gerWaveNormal(NW, t, waveDir, amplitude, waveLength, speed, sharpness);
       stroke(255,0,0);
-      line(NW.x, NW.y, NW.z, NW.x+NWN.x, NW.y+NWN.y, NW.z+NWN.z);
+      line(NW.x, NW.y, NW.z, NW.x+NWN.x*100, NW.y+NWN.y*100, NW.z+NWN.z);
       noStroke();
       
       beginShape();
