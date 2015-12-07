@@ -16,7 +16,7 @@ void setup()
   radius = 300f;
   cameraPos = new Vec3D(0,0,radius);
   cameraUp = new Vec3D(0,-1,0);
-//  shade = loadShader("waterFragment.glsl", "waterVertex.glsl");
+  shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
 
   root = new QuadTree(new Coordinate(0, 0, 0), 8000.0);
 
@@ -29,9 +29,9 @@ void setup()
 void draw() {
 
   getCamera();
-//  shader(shade);
-  background(0);
-  pointLight(255, 255, 255, 500, 500, 1000);
+  shader(shade);
+  background(111, 193, 237);
+  pointLight(255, 255, 255, 500, 50000, 16000);
   fill(255);
 
   root.updateAndDisplay();

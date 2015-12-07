@@ -22,16 +22,17 @@ PVector gerWaveNormal(PVector loc, float time, PVector[] direction, float[] ampl
   {
     float w = 2.0*PI/wavelength[i];
     float phi = speed[i]*w;
-    float q = 1/(w*amplitude[i]*direction.length-sharpness[i]);
+//    float q = 1/(w*amplitude[i]*(direction.length-sharpness[i]));
+    float q = 0;
 //    println("NORMAL        sin(D dot P * w + phi*loc.z) = " + sin(w*direction[i].dot(loc)+phi*loc.z));
-    x += q*direction[i].x*direction[i].y*w*amplitude[i]*sin(w*direction[i].dot(loc)+phi*loc.z);
-    y += q*direction[i].y*direction[i].y*w*amplitude[i]*sin(w*direction[i].dot(loc)+phi*loc.z);
-    z += direction[i].y*w*amplitude[i]*cos(w*direction[i].dot(loc)+phi*loc.z);
+    x += direction[i].x*w*amplitude[i]*cos(w*direction[i].x*loc.x+w*direction[i].y*loc.y+phi*time)/wavelength[i];
+    y += direction[i].y*w*amplitude[i]*cos(w*direction[i].x*loc.x+w*direction[i].y*loc.y+phi*time)/wavelength[i];
+    z += q*w*amplitude[i]*sin(w*direction[i].x*loc.x+w*direction[i].y*loc.y+phi*time);
   }
 //  println("NORMAL:     x = " + x + ", y = " + y + ", z = " + z);
 //  println("NORMAL:     loc = " + loc);
-  PVector temp = new PVector(-x, 1-y, -z);
-  temp.normalize();
+  PVector temp = new PVector(-x, -y, 1-z);
+//  temp.normalize();
   return temp;
 }
 
@@ -44,7 +45,8 @@ PVector gerWaveOther(float x0, float y0, float t, PVector[] direction, float[] a
   {
     float w = 2*PI/wavelength[i];
     float phi = speed[i]*w;
-    float q = 1/(w*amplitude[i]*(direction.length-sharpness[i]));
+//    float q = 1/(w*amplitude[i]*(direction.length-sharpness[i]));
+    float q = 0;
     x += q*amplitude[i]*direction[i].x*cos(w*direction[i].x*x0+w*direction[i].y*y0+phi*t);
     y += q*amplitude[i]*direction[i].y*cos(w*direction[i].x*x0+w*direction[i].y*y0+phi*t);
     z += amplitude[i]*sin(w*direction[i].x*x0+w*direction[i].y*y0+phi*t);
