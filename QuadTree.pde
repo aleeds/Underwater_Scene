@@ -141,7 +141,7 @@ class QuadTree
       update();
       PVector[] waveDir = {new PVector(1,1,0), new PVector(1.5,0.8,0), new PVector(0,1,0)};
       float[] amplitude = {80.0, 40.0, 15.0};
-      float[] waveLength = {120.0, 60.0, 30.0};
+      float[] waveLength = {120.0, 60.0, 80.0};
       float[] speed = {28.0, 12.0, 30.0};
       float[] sharpness = {0.0, 0.0, 0.0};
 

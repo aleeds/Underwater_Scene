@@ -18,7 +18,7 @@ void setup()
   cameraUp = new Vec3D(0,-1,0);
   shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
 
-  root = new QuadTree(new Coordinate(0, 0, 0), 8000.0);
+  root = new QuadTree(new Coordinate(0, 0, 0), 8192.0);
 
   for(int i=0; i<6; i++) root.subdivideAll();
   dragged = rolled = false;
