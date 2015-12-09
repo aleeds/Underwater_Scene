@@ -72,6 +72,7 @@ class FullSystem {
   LSystem lsystem;
   ArrayList<LRule> rules;
   String start;
+  long seed;
   FullSystem(LSystem systm, ArrayList<LRule> rul,String str) {
     lsystem = systm;
     rules = rul;
@@ -79,8 +80,12 @@ class FullSystem {
   }
 
   void Draw(int i,int len) {
+     //randomSeed(seed);
      String begin = start;
-     for (int q = 0;q < i;++q) begin = FindRule(begin,rules).GetNext();
+     for (int q = 0;q < i;++q) begin = NextL(begin,rules);
+     pushMatrix();
      DrawL(begin,lsystem,len);
+     println(begin);
+     popMatrix();
   }
 }

@@ -4,6 +4,7 @@ import processing.event.*;
 import processing.opengl.*; 
 
 import toxi.geom.Vec3D; 
+import toxi.geom.Matrix4x4; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -18,13 +19,38 @@ public class Underwater_Scene extends PApplet {
 
 
 
+
 PShader shade;
 QuadTree root;
 boolean sha;
 
+float rotationAngle;
+float elevationAngle;
+
 float radius,angle;
 boolean dragged, rolled;
-Vec3D cameraPos, cameraUp, prevAxis;
+Vec3D cameraPos, cameraUp,cameraDirection;
+
+FullSystem lightning_bolt;
+
+class LightningDraw extends LSystem {
+  public void DrawChar(char c,int len) {
+    if (c == '[') pushMatrix();
+    else if (c == ']') popMatrix();
+    else if (c == 'F') {
+      if (random(0,50) < 3) {
+        pointLight(255,255,255,0,len,len / 2);
+      }
+      line(0,0,0,0,len,len / 2);
+      translate(0,len,len / 2);
+    } else if (c == '+') rotateZ(PI / 12);
+      else if (c == '-') rotateZ(-PI / 12);
+      else if (c == 'Q') {
+        rotateX(random(-PI / 32,PI / 32));
+      }
+  }
+}
+
 
 
 public void setup()
@@ -32,111 +58,204 @@ public void setup()
   size(900,900,P3D);
   noStroke();
   radius = 300f;
-  cameraPos = new Vec3D(0,0,radius);
+  //cameraPos = new Vec3D(0,0,radius);
+  cameraPos = new Vec3D(width/2.0f, height/2.0f, (height/2.0f) / tan(PI*30.0f / 180.0f));
+  printVec3D(cameraPos,"Camera Pos");
   cameraUp = new Vec3D(0,-1,0);
+  cameraDirection = new Vec3D(0,0,-100);
+  //rotationAngle = PI / 2.0;
+  //elevationAngle = 0;
 //  shade = loadShader("waterFragment.glsl", "waterVertex.glsl");
-
+  lights();
   root = new QuadTree(new Coordinate(0, 0, 0), 8000.0f);
 
   for(int i=0; i<6; i++) root.subdivideAll();
   dragged = rolled = false;
-  prevAxis = new Vec3D(0,1,0);
+
+  MakeLightningBolt();
+
 }
 
+public void MakeLightningBolt() {
+  ArrayList<LRule> rules = new ArrayList<LRule>();
+  String[] pos = {"QFF[+F][-F]","QFF[+FF]","QF[-F][+FF]",
+                  "FFQ[+F]Q[-F]","FFQ[+FF]","F[-F][+FF]Q"};
+  rules.add(new StochLRule("F",pos));
+  lightning_bolt = new FullSystem(new LightningDraw(),rules, "F");
+}
+
+public void DrawLightningAtCoordinate(float x, float y, float z) {
+  translate(x,y,z);
+  //lightning_bolt.Draw(3,20);
+  translate(-x,-y,-z);
+}
+
+boolean is_andy = true;
+
+public void andy_draw() {
+  background(0);
+  getCamera();
+  lights();
+  fill(color(255,0,0));
+  pushMatrix();
+  translate(width / 2.0f,height / 2.0f,0);
+  box(100);
+  translate(200,0,0);
+  sphere(100);
+  translate(-200,0,0);
+  translate(0,0,1200);
+  sphere(100);
+  translate(0,0,-1200);
+  stroke(color(0,255,0));
+  line(0,0,0,0,0,500);
+  line(0,0,0,0,500,0);
+  line(0,0,0,500,0,0);
+  stroke(255);
+  //DrawLightningAtCoordinate(100,0,50);
+
+  translate(0,-100,-50);
+  stroke(color(255,0,0));
+  line(0,0,0,cameraUp.x * 100,cameraUp.y * 100,  cameraUp.z * 100);
+  stroke(color(0,255,55));
+  line(0,0,0,cameraDirection.x,cameraDirection.y,cameraDirection.z);
+  popMatrix();
+  keyPressedLocal();
+}
 
 public void draw() {
-
+  if (is_andy) {
+    andy_draw();
+  } else {
   getCamera();
-//  shader(shade);
-  background(0);
-  pointLight(255, 255, 255, 500, 500, 1000);
-  fill(255);
+  //  shader(shade);
+    background(0);
+    pointLight(255, 255, 255, 500, 500, 1000);
+    fill(255);
 
-  root.updateAndDisplay();
-  dragged = false;
-  rolled = false;
+    root.updateAndDisplay();
+    dragged = false;
+    rolled = false;
+  }
 }
-public void getCamera()
-{
-    float epsilon = 0.5f;
-    Vec3D cameraRight = cameraUp.cross(cameraPos).normalize();
-
-    if(dragged)
-    {
-      prevAxis = cameraRight.scale(mouseX-pmouseX).add(cameraUp.scale(mouseY-pmouseY));
-    }
-
-
-
-    if(dragged)
-    {
-      Vec3D tempAxis = prevAxis.cross(cameraPos).normalize();
-      cameraUp.rotateAroundAxis(tempAxis,map(prevAxis.magnitude(),0,150,0,1)).normalize();
-      cameraPos.rotateAroundAxis(tempAxis,map(prevAxis.magnitude(),0,150,0,1));
-    }
-    else if(rolled)
-    {
-      float amt = map(pmouseX-mouseX,-30,30,-0.5f,0.5f);
-      if(mouseY >= height/2.0f) amt = -amt; //needed?
-      Vec3D tempAxis = cameraPos.copy().normalize();
-      cameraUp.rotateAroundAxis(tempAxis,amt).normalize();
-    }
-    camera(cameraPos.x,cameraPos.y,cameraPos.z,0,0,0,cameraUp.x,cameraUp.y,cameraUp.z);
-    perspective(PI/3.0f, width/height, cameraPos.magnitude()/10.0f, cameraPos.magnitude()*10000000.0f);
+public void getCamera() {
+  ModifyCamera();
+  Vec3D cd = cameraPos.add(cameraDirection);
+  camera(cameraPos.x, cameraPos.y,cameraPos.z,
+         cd.x,cd.y,cd.z,
+         cameraUp.x,cameraUp.y,cameraUp.z);
 }
 
-public void mouseWheel(MouseEvent event)
-{
-  float e = event.getCount();
 
-  if(e > 0) cameraPos.scaleSelf(1.2f);
-  else cameraPos.scaleSelf(0.8f);
+public void printVec3D(Vec3D vec,String name) {
+  println(name + " " + vec.x + " " + vec.y + " " + vec.z + " ");
+}
+// this function will handle traditional video game first person controls.
+public void ModifyCamera() {
+   float dx = mouseX - pmouseX;
+   float dy = mouseY - pmouseY;
+   if (dx != 0 || dy != 0) {
+      if (mouseButton == RIGHT) {
+        RotateCamera();
+      } else if (mouseButton == LEFT) {
+        MoveCamera();
+      }
+   }
 }
 
-public void mouseDragged()
-{
-  if(mouseButton == LEFT)
-    dragged = true;
-  else
-    rolled = true;
+public void MoveCamera() {
+  float dx = mouseX - pmouseX;
+  float dy = mouseY - pmouseY;
+  if (dy != 0) {
+    cameraDirection.normalize();
+    Vec3D right = cameraUp.cross(cameraDirection);
+    right.normalize();
+    cameraDirection = RotateAroundAxis(cameraDirection,right,-dy * PI / 128);
+    cameraDirection.normalize();
+    cameraDirection = cameraDirection.scale(100);
+    cameraUp = RotateAroundAxis(cameraUp,right,-dy * PI / 128);
+    cameraUp.normalize();
+    println(cameraUp.dot(cameraDirection));
+  }
+  if (dx != 0) {
+    cameraUp.normalize();
+    cameraDirection = RotateAroundAxis(cameraDirection,cameraUp,dx * PI / 256);
+    cameraDirection.normalize();
+    cameraDirection = cameraDirection.scale(100);
+  }
+
+
 }
 
-public float[] axisMatrix(Vec3D axis)
-{
-    Vec3D w = axis.copy();
-    w.normalize();
-    Vec3D t = w.copy();
-    if (w.x == min(w.x, w.y, w.z)) {
-      t.x = 1;
-    }
-    else if (w.y == min(w.x, w.y, w.z)) {
-      t.y = 1;
-    }
-    else if (w.z == min(w.x, w.y, w.z)) {
-      t.z = 1;
-    }
-    Vec3D u = w.cross(t);
-    u.normalize();
-    Vec3D v = w.cross(u);
-    v.normalize();
-    return new float[]{u.x, v.x, w.x,
-                       u.y, v.y, w.y,
-                       u.z, v.z, w.z};
+public void RotateCamera() {
+
 }
 
-public void rotateAboutAxis(PVector a, float amt)
-{
-  Vec3D w = new Vec3D(a.x, a.y, a.z);
-  float[] m = axisMatrix(w);
-  applyMatrix(m[0], m[1], m[2], 0,
-              m[3], m[4], m[5], 0,
-              m[6], m[7], m[8], 0,
-              0.0f,  0.0f,  0.0f,  1);
-  rotateZ(amt);
-  applyMatrix(m[0], m[3], m[6], 0,
-              m[1], m[4], m[7], 0,
-              m[2], m[5], m[8], 0,
-              0.0f,  0.0f,  0.0f,  1);
+public Vec3D RotateAroundAxis(Vec3D rotate,Vec3D axis, float theta) {
+  Matrix4x4 r = axisMatrix(axis,theta);
+  return r.applyTo(rotate.immutable());
+}
+
+
+// This lets the user move the camera by hitting the keys
+// need to change to incorporate different camera directions.
+public void keyPressedLocal() {
+  if (keyPressed && key == CODED) {
+    Vec3D right = cameraUp.cross(cameraDirection).scale(.2f);
+    if (keyCode == UP) {
+      cameraPos = cameraPos.add(cameraDirection.scale(.2f));
+    }
+    if (keyCode == DOWN) {
+      cameraPos = cameraPos.sub(cameraDirection.scale(.2f));
+    }
+    if (keyCode == LEFT) {
+      cameraPos = cameraPos.add(right);
+    }
+    if (keyCode == RIGHT) {
+      cameraPos = cameraPos.sub(right);
+      saveFrame("picture_for_hibbs.png");
+    }
+  }
+}
+
+
+// This comes from a StackoverFlow post.
+// http://stackoverflow.com/questions/22745937/understanding-the-math-behind-rotating-around-an-arbitrary-axis-in-webgl
+public Matrix4x4 axisMatrix(Vec3D axis,float theta) {
+   axis.normalize();
+   double c = cos(theta);
+   double s = sin(theta);
+   double nc = 1 - c;
+   double xy = axis.x * axis.y;
+   double yz = axis.y * axis.z;
+   double zx = axis.z * axis.x;
+   double xs = axis.x * s;
+   double ys = axis.y * s;
+   double zs = axis.z * s;
+   double[] e = {0,0,0,0,
+                 0,0,0,0,
+                 0,0,0,0,
+                 0,0,0,0};
+   e[ 0] = axis.x*axis.x*nc +  c;
+   e[ 1] = xy *nc + zs;
+   e[ 2] = zx *nc - ys;
+   e[ 3] = 0;
+
+   e[ 4] = xy *nc - zs;
+   e[ 5] = axis.y*axis.y*nc +  c;
+   e[ 6] = yz *nc + xs;
+   e[ 7] = 0;
+
+   e[ 8] = zx *nc + ys;
+   e[ 9] = yz *nc - xs;
+   e[10] = axis.z*axis.z*nc +  c;
+   e[11] = 0;
+
+   e[12] = 0;
+   e[13] = 0;
+   e[14] = 0;
+   e[15] = 1;
+   return new Matrix4x4(e);
+
 }
 class Coordinate
 {
@@ -495,6 +614,7 @@ class FullSystem {
   LSystem lsystem;
   ArrayList<LRule> rules;
   String start;
+  long seed;
   FullSystem(LSystem systm, ArrayList<LRule> rul,String str) {
     lsystem = systm;
     rules = rul;
@@ -502,9 +622,13 @@ class FullSystem {
   }
 
   public void Draw(int i,int len) {
+     //randomSeed(seed);
      String begin = start;
-     for (int q = 0;q < i;++q) begin = FindRule(begin,rules).GetNext();
+     for (int q = 0;q < i;++q) begin = NextL(begin,rules);
+     pushMatrix();
      DrawL(begin,lsystem,len);
+     println(begin);
+     popMatrix();
   }
 }
   static public void main(String[] passedArgs) {
