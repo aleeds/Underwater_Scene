@@ -23,28 +23,41 @@ void ModifyCamera() {
    }
 }
 
+void JankyHackCamera(float dx,float dy) {
+  Vec3D right = cameraUp.cross(cameraDirection);
+  right.normalize();
+  Vec3D rotAxis = cameraUp.scale(dx).add(right.scale(dy));
+  rotAxis.normalize();
+  float mag = sqrt(dx * dx + dy * dy);
+  cameraDirection = RotateAroundAxis(cameraDirection,rotAxis,mag);
+  cameraUp = RotateAroundAxis(cameraUp,rotAxis,mag);
+  CorrectCameraUp();
+}
+
+
+void CorrectCameraUp() {
+  cameraUp = new Vec3D(absolute_up.x,absolute_up.y,cameraUp.z);
+}
+
 void MoveCamera() {
   float dx = mouseX - pmouseX;
   float dy = mouseY - pmouseY;
-  if (dy != 0) {
-    cameraDirection.normalize();
-    Vec3D right = cameraUp.cross(cameraDirection);
-    right.normalize();
-    cameraDirection = RotateAroundAxis(cameraDirection,right,-dy * PI / 128);
-    cameraDirection.normalize();
-    cameraDirection = cameraDirection.scale(100);
-    cameraUp = RotateAroundAxis(cameraUp,right,-dy * PI / 128);
-    cameraUp.normalize();
-    println(cameraUp.dot(cameraDirection));
-  }
-  if (dx != 0) {
-    cameraUp.normalize();
-    cameraDirection = RotateAroundAxis(cameraDirection,cameraUp,dx * PI / 256);
-    cameraDirection.normalize();
-    cameraDirection = cameraDirection.scale(100);
-  }
+   float num_hacks = 1000.0;
+   float amtx_max = dx * PI / 256;
+   float amtx = amtx_max / num_hacks;
+   float amty_max = dy * PI / 256;
+   float amty = amty_max / num_hacks;
+   for (float i = 0;i < num_hacks;i += 1) {
+     JankyHackCamera(amtx,amty);
+   }
+}
 
-
+Vec3D RotateCameraAngle(Vec3D tmp,float theta) {
+  cameraDirection.normalize();
+  tmp = RotateAroundAxis(tmp,cameraDirection,theta);
+  cameraDirection = cameraDirection.scale(100);
+  tmp.normalize();
+  return tmp;
 }
 
 void RotateCamera() {
@@ -73,7 +86,6 @@ void keyPressedLocal() {
     }
     if (keyCode == RIGHT) {
       cameraPos = cameraPos.sub(right);
-      saveFrame("picture_for_hibbs.png");
     }
   }
 }
@@ -97,7 +109,7 @@ Matrix4x4 axisMatrix(Vec3D axis,float theta) {
                  0,0,0,0,
                  0,0,0,0};
    e[ 0] = axis.x*axis.x*nc +  c;
-   e[ 1] = xy *nc + zs;
+   e[ 1] = xy * nc + zs;
    e[ 2] = zx *nc - ys;
    e[ 3] = 0;
 
