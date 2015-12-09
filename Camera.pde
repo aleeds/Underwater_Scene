@@ -26,28 +26,44 @@ void ModifyCamera() {
 void JankyHackCamera(float dx,float dy) {
   Vec3D right = cameraUp.cross(cameraDirection);
   right.normalize();
-  Vec3D rotAxis = cameraUp.scale(dx).add(right.scale(dy));
-  rotAxis.normalize();
-  float mag = sqrt(dx * dx + dy * dy);
-  cameraDirection = RotateAroundAxis(cameraDirection,rotAxis,mag);
-  cameraUp = RotateAroundAxis(cameraUp,rotAxis,mag);
-  CorrectCameraUp();
+  //cameraUp = RotateAroundAxis(cameraUp,right,dy);
+  //cameraDirection = RotateAroundAxis(cameraDirection,right,dy);
+  cameraUp.normalize();
+  cameraDirection = RotateAroundAxis(cameraDirection,cameraUp,dx);
+  cameraDirection.normalize();
+
+  cameraDirection = RotateAroundAxis(cameraDirection,right,dy);
+  cameraDirection.normalize();
+  cameraUp.normalize();
+  right = cameraUp.cross(cameraDirection);
+  right.normalize();
+  cameraUp = RotateAroundAxis(cameraUp,right,dy);
+  cameraUp.normalize();
+  cameraDirection = cameraDirection.scale(100);
 }
 
 
-void CorrectCameraUp() {
-  cameraUp = new Vec3D(absolute_up.x,absolute_up.y,cameraUp.z);
-}
 
 void MoveCamera() {
-  float dx = mouseX - pmouseX;
-  float dy = mouseY - pmouseY;
-   float num_hacks = 1000.0;
+   float dx = mouseX - pmouseX;
+   float dy = mouseY - pmouseY;
+   float num_hacks = 1.0;
    float amtx_max = dx * PI / 256;
    float amtx = amtx_max / num_hacks;
    float amty_max = dy * PI / 256;
    float amty = amty_max / num_hacks;
-   for (float i = 0;i < num_hacks;i += 1) {
+   Vec3D right = cameraUp.cross(cameraDirection);
+   right.normalize();
+   cameraUp.normalize();
+   Vec3D axis = right.scale(amty_max).add(cameraUp.scale(amtx_max));
+   float mag = sqrt(amtx_max * amtx_max + amty_max * amty_max);
+   axis.normalize();
+   cameraDirection = RotateAroundAxis(cameraDirection,axis,mag);
+   cameraDirection.normalize();
+   right.normalize();
+   cameraUp = RotateAroundAxis(cameraUp,axis,mag);
+   cameraDirection = cameraDirection.scale(100);
+   for (float i = 10;i < num_hacks;i += 1) {
      JankyHackCamera(amtx,amty);
    }
 }
@@ -61,12 +77,19 @@ Vec3D RotateCameraAngle(Vec3D tmp,float theta) {
 }
 
 void RotateCamera() {
-
+   PVector first = new PVector(mouseX, mouseY);
+   first.normalize();
+   PVector second = new PVector(pmouseX, pmouseY);
+   second.normalize();
+   float ang_one = acos(first.dot(new PVector(1,0)));
+   float ang_two = acos(second.dot(new PVector(1,0)));
+   cameraUp = RotateCameraAngle(cameraUp,ang_one - ang_two);
 }
 
 Vec3D RotateAroundAxis(Vec3D rotate,Vec3D axis, float theta) {
-  Matrix4x4 r = axisMatrix(axis,theta);
-  return r.applyTo(rotate.immutable());
+   Matrix4x4 r = axisMatrix(axis,theta);
+   return r.applyTo(rotate.immutable());
+
 }
 
 
@@ -93,40 +116,21 @@ void keyPressedLocal() {
 
 // This comes from a StackoverFlow post.
 // http://stackoverflow.com/questions/22745937/understanding-the-math-behind-rotating-around-an-arbitrary-axis-in-webgl
+// Confirmed by Wikipedia Page: Quaternion and Spacial Rotation
 Matrix4x4 axisMatrix(Vec3D axis,float theta) {
    axis.normalize();
+   double x = axis.x;
+   double y = axis.y;
+   double z = axis.z;
    double c = cos(theta);
    double s = sin(theta);
    double nc = 1 - c;
-   double xy = axis.x * axis.y;
-   double yz = axis.y * axis.z;
-   double zx = axis.z * axis.x;
-   double xs = axis.x * s;
-   double ys = axis.y * s;
-   double zs = axis.z * s;
-   double[] e = {0,0,0,0,
-                 0,0,0,0,
-                 0,0,0,0,
-                 0,0,0,0};
-   e[ 0] = axis.x*axis.x*nc +  c;
-   e[ 1] = xy * nc + zs;
-   e[ 2] = zx *nc - ys;
-   e[ 3] = 0;
 
-   e[ 4] = xy *nc - zs;
-   e[ 5] = axis.y*axis.y*nc +  c;
-   e[ 6] = yz *nc + xs;
-   e[ 7] = 0;
+   double[] e = {c+ x*x*nc, x*y* nc - z*s, x*z*nc + y*s,0,
+                 y*x*nc + z* s, c + y*y*nc, y*z*nc - x*s,0,
+                 z*x*nc - y*s, z*y*nc + x*s, c + z*z*nc,0,
+                 0,0,0,1};
 
-   e[ 8] = zx *nc + ys;
-   e[ 9] = yz *nc - xs;
-   e[10] = axis.z*axis.z*nc +  c;
-   e[11] = 0;
-
-   e[12] = 0;
-   e[13] = 0;
-   e[14] = 0;
-   e[15] = 1;
    return new Matrix4x4(e);
 
 }
