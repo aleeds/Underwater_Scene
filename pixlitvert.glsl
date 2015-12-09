@@ -16,10 +16,11 @@ varying vec4 vertColor;
 varying vec3 ecNormal;
 varying vec3 lightDir;
 varying vec3 hVector;
+varying vec3 ecVertex;
 
 void main() {
   gl_Position = transform * vertex;    
-  vec3 ecVertex = vec3(modelview * vertex);  
+  ecVertex = vec3(modelview * vertex);  
   
   ecNormal = normalize(normalMatrix * normal);
   lightDir = normalize(lightPosition.xyz - ecVertex);  

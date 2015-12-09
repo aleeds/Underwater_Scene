@@ -2,15 +2,17 @@ class QuadTree
 {
   Coordinate center;
   float sideLength, t, bounds;
+  GerWave[] waves;
   QuadTree childNE, childNW, childSE, childSW;
   
-  QuadTree(Coordinate _center, float _sideLength)
+  QuadTree(Coordinate _center, float _sideLength, GerWave[] _waves)
   {
     center = _center;
     sideLength = _sideLength;
     childNE = childNW = childSE = childSW = null;
     t=0;
     bounds = sideLength/2.0;
+    waves = _waves;
   }
   
   QuadTree(Coordinate _center, float _sideLength, float _bounds)
@@ -22,10 +24,16 @@ class QuadTree
     bounds = _bounds;
   }
   
-  float heightFunction(float x, float y)
+  QuadTree(Coordinate _center, float _sideLength, float _bounds, GerWave[] _waves)
   {
-    return (cos(map(x,-bounds,bounds,0,3.14159)+t)*10.0*sin(map(y,-bounds,bounds,0,3.14159)+t));
+    center = _center;
+    sideLength = _sideLength;
+    childNE = childNW = childSE = childSW = null;
+    t=0;
+    bounds = _bounds;
+    waves = _waves;
   }
+  
   
   void setT(float _t)
   {
@@ -34,30 +42,30 @@ class QuadTree
   
   void update()
   {
-    t+=0.01f;
+    t+=0.1f;
   }
   
   void subdivideNE()
   {
-    QuadTree child = new QuadTree(new Coordinate(center.x + sideLength/4.0, center.y - sideLength/4.0, center.z), sideLength/2.0, bounds);
+    QuadTree child = new QuadTree(new Coordinate(center.x + sideLength/4.0, center.y - sideLength/4.0, center.z), sideLength/2.0, bounds, waves);
     childNE = child;
   }
   
   void subdivideNW()
   {
-    QuadTree child = new QuadTree(new Coordinate(center.x - sideLength/4.0, center.y - sideLength/4.0, center.z), sideLength/2.0, bounds);
+    QuadTree child = new QuadTree(new Coordinate(center.x - sideLength/4.0, center.y - sideLength/4.0, center.z), sideLength/2.0, bounds, waves);
     childNW = child;
   }
   
   void subdivideSE()
   {
-    QuadTree child = new QuadTree(new Coordinate(center.x + sideLength/4.0, center.y + sideLength/4.0, center.z), sideLength/2.0, bounds);
+    QuadTree child = new QuadTree(new Coordinate(center.x + sideLength/4.0, center.y + sideLength/4.0, center.z), sideLength/2.0, bounds, waves);
     childSE = child;
   }
   
   void subdivideSW()
   {
-    QuadTree child = new QuadTree(new Coordinate(center.x - sideLength/4.0, center.y + sideLength/4.0, center.z), sideLength/2.0, bounds);
+    QuadTree child = new QuadTree(new Coordinate(center.x - sideLength/4.0, center.y + sideLength/4.0, center.z), sideLength/2.0, bounds, waves);
     childSW = child;
   }
   
@@ -96,71 +104,64 @@ class QuadTree
     }
   }
   
-  void display()
+  
+  void gerWaveDisplay()
   {
     if(childNE != null)
     {
-      childNE.display();
-      childNW.display();
-      childSE.display();
-      childSW.display();
+      childNE.gerWaveDisplay();
+      childNW.gerWaveDisplay();
+      childSE.gerWaveDisplay();
+      childSW.gerWaveDisplay();
     }
     else
     {
-      PVector[] waveDir = {new PVector(1,1,0), new PVector(-1,1,0), new PVector(0,1,0)};
-      float[] amplitude = {20.0, 3.0, 15.0};
-      float[] waveLength = {8.0, 6.0, 2.0};
-      float[] frequency = {3.0, 1.0, 5.0};
-      float[] phase = {1.0, 0.57};
-      PVector NW = gerWave(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
-      PVector NE = gerWave(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
-      PVector SE = gerWave(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
-      PVector SW = gerWave(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, frequency, phase);
-//      PVector NWN = gerWaveNormal(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, frequency);
-      
-      beginShape();
-      vertex(center.x-sideLength/2.0,center.y-sideLength/2.0,heightFunction(center.x-sideLength/2.0, center.y-sideLength/2.0));
-      vertex(center.x+sideLength/2.0,center.y-sideLength/2.0,heightFunction(center.x+sideLength/2.0, center.y-sideLength/2.0));
-      vertex(center.x+sideLength/2.0,center.y+sideLength/2.0,heightFunction(center.x+sideLength/2.0, center.y+sideLength/2.0));
-      vertex(center.x-sideLength/2.0,center.y+sideLength/2.0,heightFunction(center.x-sideLength/2.0, center.y+sideLength/2.0));
-      endShape();
-    }
-  }
-    
-  void updateAndDisplay()
-  {
-    if(childNE != null)
-    {
-      childNE.updateAndDisplay();
-      childNW.updateAndDisplay();
-      childSE.updateAndDisplay();
-      childSW.updateAndDisplay();
-    }
-    else
-    {
+      //lots of declared variables here, but allows us to compute location and normal in one pass of the waves, so maybe good?
       update();
-      PVector[] waveDir = {new PVector(1,1,0), new PVector(1.5,0.8,0), new PVector(0,1,0)};
-      float[] amplitude = {80.0, 40.0, 15.0};
-      float[] waveLength = {120.0, 60.0, 80.0};
-      float[] speed = {28.0, 12.0, 30.0};
-      float[] sharpness = {0.0, 0.0, 0.0};
-
-//      PVector[] waveDir = {new PVector(1,1,0)};
-//      float[] amplitude = {80.0};
-//      float[] waveLength = {30.0};
-//      float[] speed = {6.0};
-//      float[] sharpness = {0.0}; //value theoretically between 0 (no pointyness) and 1 (really pointy) but actually higher than ~ 0.96 creates weird results as basically dividing by 0, and lower than ~ 0.8 doesnt really do much, so may end up mapping
-
-      PVector NW = gerWaveOther(center.x-sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, speed, sharpness);
-      PVector NE = gerWaveOther(center.x+sideLength/2.0, center.y-sideLength/2.0, t, waveDir, amplitude, waveLength, speed, sharpness);
-      PVector SE = gerWaveOther(center.x+sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, speed, sharpness);
-      PVector SW = gerWaveOther(center.x-sideLength/2.0, center.y+sideLength/2.0, t, waveDir, amplitude, waveLength, speed, sharpness);
+      float NWH = 0.0; //North-West z-component
+      float NWNX = 0.0; //North-West normal x-component
+      float NWNY = 0.0; //North-West normal y-component
       
-      PVector NWN = gerWaveNormal(NW, t, waveDir, amplitude, waveLength, speed, sharpness);
-      PVector NEN = gerWaveNormal(NE, t, waveDir, amplitude, waveLength, speed, sharpness);
-      PVector SEN = gerWaveNormal(SE, t, waveDir, amplitude, waveLength, speed, sharpness);
-      PVector SWN = gerWaveNormal(SW, t, waveDir, amplitude, waveLength, speed, sharpness);
-
+      float NEH = 0.0;
+      float NENX = 0.0;
+      float NENY = 0.0;
+      
+      float SEH = 0.0;
+      float SENX = 0.0;
+      float SENY = 0.0;
+      
+      float SWH = 0.0;
+      float SWNX = 0.0;
+      float SWNY = 0.0;
+      
+      for(GerWave w : waves)
+      {
+        NWH += w.getHeight(center.x-sideLength/2.0, center.y-sideLength/2.0, t);
+        NWNX -= w.getNormalX(center.x-sideLength/2.0, center.y-sideLength/2.0, t);
+        NWNY -= w.getNormalY(center.x-sideLength/2.0, center.y-sideLength/2.0, t);
+        
+        NEH += w.getHeight(center.x+sideLength/2.0, center.y-sideLength/2.0, t);
+        NENX -= w.getNormalX(center.x+sideLength/2.0, center.y-sideLength/2.0, t);
+        NENY -= w.getNormalX(center.x+sideLength/2.0, center.y-sideLength/2.0, t);
+        
+        SEH += w.getHeight(center.x+sideLength/2.0, center.y+sideLength/2.0, t);
+        SENX -= w.getNormalX(center.x+sideLength/2.0, center.y+sideLength/2.0, t);
+        SENY -= w.getNormalX(center.x+sideLength/2.0, center.y+sideLength/2.0, t);
+        
+        SWH += w.getHeight(center.x-sideLength/2.0, center.y+sideLength/2.0, t);
+        SWNX -= w.getNormalX(center.x-sideLength/2.0, center.y+sideLength/2.0, t);
+        SWNY -= w.getNormalX(center.x-sideLength/2.0, center.y+sideLength/2.0, t);
+      }
+      
+      PVector NW = new PVector(center.x-sideLength/2.0, center.y-sideLength/2.0, NWH);
+      PVector NE = new PVector(center.x+sideLength/2.0, center.y-sideLength/2.0, NEH);
+      PVector SE = new PVector(center.x+sideLength/2.0, center.y+sideLength/2.0, SEH);
+      PVector SW = new PVector(center.x-sideLength/2.0, center.y+sideLength/2.0, SWH);
+      
+      PVector NWN = new PVector(NWNX, NWNY, 1);
+      PVector NEN = new PVector(NENX, NENY, 1);
+      PVector SEN = new PVector(SENX, SENY, 1);
+      PVector SWN = new PVector(SWNX, SWNY, 1);
       
       beginShape();
       
@@ -176,6 +177,7 @@ class QuadTree
       normal(SWN.x, SWN.y, SWN.z);
       vertex(SW.x, SW.y, SW.z);
       endShape();
+      
     }
   }
 }
