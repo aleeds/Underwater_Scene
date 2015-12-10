@@ -1,8 +1,8 @@
 import toxi.geom.Vec3D;
 import toxi.geom.Matrix4x4;
 
-PShader shade;
-PImage imgFloor;
+PShader shade, underWater;
+PImage imgFloor, imgCeil;
 QuadTree ocean;
 GerWave[] waves;
 
@@ -63,8 +63,11 @@ void setup() {
     cameraDirection = new Vec3D(0,0,-100);
     lights();
     shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
+    underWater = loadShader("underwaterfrag.glsl", "underwatervert.glsl");
     imgFloor = loadImage("OceanFloor.jpg");
+    imgCeil = loadImage("Sky2.jpg");
     shade.set("textFloor", imgFloor);
+    shade.set("zSign", -1.0);
     imageMode(CENTER);
     int k = 1;
     waves = new GerWave[k];
@@ -138,22 +141,42 @@ void draw() {
     andy_draw();
   } else {
     getCamera();
-    shader(shade);
-    background(0);
-    pointLight(255, 255, 255, 500, 500, 1000);
-    fill(255);
+    resetShader();
+
+    if(cameraPos.z <= 0) 
+    {
+      image(imgCeil, 0, 0, 16384, 16384);
+      shade.set("textFloor", imgCeil);
+      shade.set("zSign", 1.0);
+    }
+    else 
+    {
+      shade.set("textFloor", imgFloor);
+      shade.set("zSign", -1.0);
+    }
     shader(shade);
     background(111, 193, 237);
     pointLight(255, 255, 255, 500, 50000, 16000);
     fill(255);
 
     ocean.gerWaveDisplay();
-    resetShader();
-
+    if(cameraPos.z <= 0) 
+    {
+      shader(underWater);
+    }
+    else
+    {
+      resetShader();
+    }
+    
+    keyPressedLocal();
     dragged = false;
     rolled = false;
     translate(0,0,-1400);
     image(imgFloor, 0, 0, 16384, 16384);
+//    resetShader();
+
+    translate(0,0,1400);
   }
 
 }
