@@ -42,7 +42,7 @@ Fish_Colony colony;
 void andy_setup() {
   size(900,900,P3D);
   cameraPos = new Vec3D(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0));
-  printVec3D(cameraPos,"Camera Pos");
+//  printVec3D(cameraPos,"Camera Pos");
   cameraUp = new Vec3D(0,-1,0);
   cameraDirection = new Vec3D(0,0,-100);
   dragged = rolled = false;
@@ -58,18 +58,10 @@ void setup() {
     size(900,900,P3D);
     noStroke();
     radius = 300f;
-    //cameraPos = new Vec3D(0,0,radius);
     cameraPos = new Vec3D(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0));
-    printVec3D(cameraPos,"Camera Pos");
     cameraUp = new Vec3D(0,-1,0);
     cameraDirection = new Vec3D(0,0,-100);
-    //rotationAngle = PI / 2.0;
-    //elevationAngle = 0;
-  //  shade = loadShader("waterFragment.glsl", "waterVertex.glsl");
     lights();
-    root = new QuadTree(new Coordinate(0, 0, 0), 8000.0);
-
-    for(int i=0; i<6; i++) root.subdivideAll();
     shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
     imgFloor = loadImage("OceanFloor.jpg");
     shade.set("textureFloor", imgFloor);
@@ -104,7 +96,7 @@ void DrawLightningAtCoordinate(float x, float y, float z) {
   translate(-x,-y,-z);
 }
 
-boolean is_andy = true;
+boolean is_andy = false;
 
 void andy_draw() {
   background(0);
@@ -146,15 +138,10 @@ void draw() {
     andy_draw();
   } else {
     getCamera();
-  //  shader(shade);
+    shader(shade);
     background(0);
     pointLight(255, 255, 255, 500, 500, 1000);
     fill(255);
-
-    root.updateAndDisplay();
-    dragged = false;
-    rolled = false;
-    getCamera();
     shader(shade);
     background(111, 193, 237);
     pointLight(255, 255, 255, 500, 50000, 16000);
@@ -169,5 +156,4 @@ void draw() {
     image(imgFloor, 0, 0, 16384, 16384);
   }
 
- // noLoop();
 }
