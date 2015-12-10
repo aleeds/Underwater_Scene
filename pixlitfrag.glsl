@@ -5,7 +5,6 @@ precision mediump int;
 #endif
 
 uniform vec3 cameraPosition;
-uniform sampler2D textureFloor;
 uniform sampler2D textFloor;
 
 varying vec4 vertColor;
@@ -24,14 +23,11 @@ void main() {
   float t = dot((vec3(0.0,0.0,-800.0)-ecVertex), vec3(0.0,0.0,1.0))/dot(normalize(refracted), vec3(0.0,0.0,1.0));
   vec3 intersect = t * normalize(refracted) + ecVertex;
   vec2 texCoord = vec2((intersect.x + 8192.0)/16384.0,(intersect.y + 8192.0)/16384.0);
-  vec4 texColor = texture2D(textureFloor, texCoord);
   vec4 texColor = texture2D(textFloor, texCoord);
   float intensity = max(0.0, dot(direction, normal));
   vec3 h = normalize(hVector);
   float specular = pow(dot(h, normal), 50.0);
   
-  gl_FragColor =  vec4(0.0,0.46,0.62,1.0) * vertColor * 0.5 + vec4(vec3(specular),1.0) * vertColor + texColor*0.5;
- // gl_FragColor =  texColor;
   gl_FragColor =  vec4(0.0,0.46,0.62,1.0) * vertColor * 0.3 + vec4(vec3(specular),1.0) * vertColor * 0.5 + texColor*0.7;
   //gl_FragColor =  texColor;
 }

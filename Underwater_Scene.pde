@@ -19,7 +19,9 @@ void setup()
   cameraUp = new Vec3D(0,-1,0);
   shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
   imgFloor = loadImage("OceanFloor.jpg");
+  shade.set("textFloor", imgFloor);
   imageMode(CENTER);
+  int k = 3;
   waves = new GerWave[k];
   for(int i = 0; i < k; i++)
   {
@@ -36,7 +38,6 @@ void setup()
 
 
 void draw() {
-
   getCamera();
   shader(shade);
   background(111, 193, 237);
