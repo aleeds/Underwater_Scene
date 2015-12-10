@@ -64,7 +64,7 @@ void setup() {
     lights();
     shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
     imgFloor = loadImage("OceanFloor.jpg");
-    shade.set("textureFloor", imgFloor);
+    shade.set("textFloor", imgFloor);
     imageMode(CENTER);
     int k = 1;
     waves = new GerWave[k];
