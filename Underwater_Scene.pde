@@ -19,9 +19,7 @@ void setup()
   cameraUp = new Vec3D(0,-1,0);
   shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
   imgFloor = loadImage("OceanFloor.jpg");
-  shade.set("textureFloor", imgFloor);
   imageMode(CENTER);
-  int k = 1;
   waves = new GerWave[k];
   for(int i = 0; i < k; i++)
   {
@@ -32,7 +30,6 @@ void setup()
   ocean = new QuadTree(new Coordinate(0, 0, 0), 8192.0, waves);
   
 
-  for(int i=0; i<6; i++) ocean.subdivideAll();
   dragged = rolled = false;
   prevAxis = new Vec3D(0,1,0);
 }
