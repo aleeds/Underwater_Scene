@@ -93,17 +93,24 @@ class CoralDraw extends LSystem {
     } else if (c == ']') {
       popMatrix();
     } else if (c == '-') {
-      rotateX(random(- PI / 6, PI / 12));
+      rotateX(random(- PI / 6, PI / 15));
     } else if (c == '!') {
-      rotateY(random(- PI / 6, PI / 12));
+      rotateY(random(- PI / 6, PI / 15));
     } else if (c == '+') {
-      rotateX(random(- PI / 12, PI / 6));
+      rotateX(random(- PI / 15, PI / 6));
     } else if (c == '@') {
-      rotateY(random(- PI / 12, PI / 6));
+      rotateY(random(- PI / 15, PI / 6));
     } else if (c == 'A') {
-      fill(color(255 - random(0,15),random(115,135),random(65,95)));
+      fill(color(255 - random(0,50),random(100,150),random(45,115)));
+      if (random(0,50) < 5) {
+        fill(color(113 - random(-30,30),random(238 - 50,255),random(169,200)));
+      }
       sphereDetail(3);
-      sphere(len);
+      if (random(0,50) < 35) {
+        sphere(len);
+      } else {
+        box(len);
+      }
       translate(random(-1,1),random(-1,1),random(-1,1));
     } else if (c == '%') {
       rotateZ(random(-PI / 4, PI / 4));
@@ -114,12 +121,11 @@ class CoralDraw extends LSystem {
 FullSystem MakeCoral() {
   CoralDraw draw = new CoralDraw();
   ArrayList<LRule> rules = new ArrayList<LRule>();
-  String[] gotos = {"[A--FAFA]XFA%FA!FA","[A+F+F]X[FA!+!F][FAFA]"};
+  String[] gotos = {"[A--FAFA]X[--F%!AF%FA]!FA","[A+F+F]X[FA!+!F][FAFA]"};
   rules.add(new StochLRule("A",gotos));
-  String[] more_gotos = {"FAFA"};
+  String[] more_gotos = {"FAFA","FA!FA-FA"};
   rules.add(new StochLRule("F",more_gotos));
   rules.add(new LRule("X","%-%+!FAFA"));
-
   FullSystem ret = new FullSystem(draw,rules,"A");
   ret.seed = second();
   return ret;
