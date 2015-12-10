@@ -85,18 +85,18 @@ Vec3D RotateAroundAxis(Vec3D rotate,Vec3D axis, float theta) {
 // This lets the user move the camera by hitting the keys
 // need to change to incorporate different camera directions.
 void keyPressedLocal() {
-  if (keyPressed && key == CODED) {
+  if (keyPressed) {
     Vec3D right = cameraUp.cross(cameraDirection).scale(.2);
-    if (keyCode == UP) {
+    if ((key == CODED && keyCode == UP) || key == 'w') {
       cameraPos = cameraPos.add(cameraDirection.scale(.2));
     }
-    if (keyCode == DOWN) {
+    if ((key == CODED && keyCode == DOWN) || key == 's') {
       cameraPos = cameraPos.sub(cameraDirection.scale(.2));
     }
-    if (keyCode == LEFT) {
+    if ((key == CODED && keyCode == LEFT) || key == 'a') {
       cameraPos = cameraPos.add(right);
     }
-    if (keyCode == RIGHT) {
+    if ((key == CODED && keyCode == RIGHT) || key == 'd') {
       cameraPos = cameraPos.sub(right);
     }
   }

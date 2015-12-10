@@ -1,8 +1,8 @@
 import toxi.geom.Vec3D;
 import toxi.geom.Matrix4x4;
 
-PShader shade, underWater;
-PImage imgFloor, imgCeil;
+PShader shade;
+PImage imgFloor;
 QuadTree ocean;
 GerWave[] waves;
 
@@ -38,17 +38,25 @@ class LightningDraw extends LSystem {
 }
 
 Fish_Colony colony;
-
+ArrayList<FullSystem> corals;
 void andy_setup() {
   size(900,900,P3D);
   cameraPos = new Vec3D(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0));
 //  printVec3D(cameraPos,"Camera Pos");
-  cameraUp = new Vec3D(0,-1,0);
+  cameraUp = new Vec3D(0,1,0);
   cameraDirection = new Vec3D(0,0,-100);
   dragged = rolled = false;
   PImage img = loadImage("fish.jpg");
-  colony = new Fish_Colony(new PVector(0,0,0),new PVector(0,0,0),100,20,img);
-  MakeLightningBolt();
+  colony = new Fish_Colony(new PVector(0,0,0),new PVector(10,-1,2),100,20,img);
+  //MakeLightningBolt();
+  ArrayList<PVector> pos_corals = new ArrayList<PVector>();
+  pos_corals.add(new PVector(100,0,75));
+  pos_corals.add(new PVector(200,0,300));
+  pos_corals.add(new PVector(-160,0,430));
+  pos_corals.add(new PVector(1000,0,600));
+  pos_corals.add(new PVector(-100,0,-1000));
+  int[] len = {5,6,4,7,9};
+  corals = MakeManyCorals(pos_corals,len);
 }
 
 void setup() {
@@ -63,11 +71,8 @@ void setup() {
     cameraDirection = new Vec3D(0,0,-100);
     lights();
     shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
-    underWater = loadShader("underwaterfrag.glsl", "underwatervert.glsl");
     imgFloor = loadImage("OceanFloor.jpg");
-    imgCeil = loadImage("Sky2.jpg");
     shade.set("textFloor", imgFloor);
-    shade.set("zSign", -1.0);
     imageMode(CENTER);
     int k = 1;
     waves = new GerWave[k];
@@ -85,55 +90,48 @@ void setup() {
   }
 }
 
-void MakeLightningBolt() {
-  ArrayList<LRule> rules = new ArrayList<LRule>();
-  String[] pos = {"QFF[+F][-F]","QFF[+FF]","QF[-F][+FF]",
-                  "FFQ[+F]Q[-F]","FFQ[+FF]","F[-F][+FF]Q"};
-  rules.add(new StochLRule("F",pos));
-  lightning_bolt = new FullSystem(new LightningDraw(),rules, "F");
-}
+// void MakeLightningBolt() {
+//   ArrayList<LRule> rules = new ArrayList<LRule>();
+//   String[] pos = {"QFF[+F][-F]","QFF[+FF]","QF[-F][+FF]",
+//                   "FFQ[+F]Q[-F]","FFQ[+FF]","F[-F][+FF]Q"};
+//   rules.add(new StochLRule("F",pos));
+//   lightning_bolt = new FullSystem(new LightningDraw(),rules, "F");
+// }
+//
+// void DrawLightningAtCoordinate(float x, float y, float z) {
+//   translate(x,y,z);
+//   lightning_bolt.Draw(2,(int)(y / 2));
+//   translate(-x,-y,-z);
+// }
 
-void DrawLightningAtCoordinate(float x, float y, float z) {
-  translate(x,y,z);
-  lightning_bolt.Draw(2,(int)(y / 2));
-  translate(-x,-y,-z);
-}
-
-boolean is_andy = false;
+boolean is_andy = true;
 
 void andy_draw() {
-  background(0);
+  background(color(15,84,107));
   getCamera();
   lights();
   fill(color(255,0,0));
   pushMatrix();
+  //MakeWalls();
   translate(width / 2.0,height / 2.0,0);
-  box(100);
-  colony.Advance();
-  translate(200,0,0);
-  //sphere(100);
-  translate(-200,0,0);
-  translate(0,0,1200);
-  //sphere(100);
-  translate(0,0,-1200);
-  stroke(color(0,255,0));
-  line(0,0,0,0,0,500);
-  line(0,0,0,0,500,0);
-  line(0,0,0,500,0,0);
-  stroke(255);
+  shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
+  shade.set("textFloor", imgFloor);
+  imgFloor = loadImage("OceanFloor.jpg");
+  pushMatrix();
+  rotateX(PI / 2);
+  translate(0,0,-1400);
 
-  translate(0,-100,-50);
-  stroke(color(255,0,0));
-  line(0,0,0,cameraUp.x * 100,cameraUp.y * 100,  cameraUp.z * 100);
-  stroke(color(255,255,0));
-  line(0,0,0,absolute_up.x * 100,absolute_up.y * 100,  absolute_up.z * 100);
-  stroke(color(0,255,55));
-  line(0,0,0,cameraDirection.x,cameraDirection.y,cameraDirection.z);
+  image(imgFloor, 0, 0, 16384, 16384);
+  popMatrix();
+  imageMode(CENTER);
+  pushMatrix();
+  for (FullSystem coral : corals) coral.Draw(3,5);
+  colony.Advance();
+  popMatrix();
 
   popMatrix();
   stroke(255);
   keyPressedLocal();
-  println(cameraDirection.dot(cameraUp));
 }
 
 void draw() {
@@ -141,42 +139,22 @@ void draw() {
     andy_draw();
   } else {
     getCamera();
-    resetShader();
-
-    if(cameraPos.z <= 0) 
-    {
-      image(imgCeil, 0, 0, 16384, 16384);
-      shade.set("textFloor", imgCeil);
-      shade.set("zSign", 1.0);
-    }
-    else 
-    {
-      shade.set("textFloor", imgFloor);
-      shade.set("zSign", -1.0);
-    }
+    shader(shade);
+    background(0);
+    pointLight(255, 255, 255, 500, 500, 1000);
+    fill(255);
     shader(shade);
     background(111, 193, 237);
     pointLight(255, 255, 255, 500, 50000, 16000);
     fill(255);
 
     ocean.gerWaveDisplay();
-    if(cameraPos.z <= 0) 
-    {
-      shader(underWater);
-    }
-    else
-    {
-      resetShader();
-    }
-    
-    keyPressedLocal();
+    resetShader();
+
     dragged = false;
     rolled = false;
     translate(0,0,-1400);
     image(imgFloor, 0, 0, 16384, 16384);
-//    resetShader();
-
-    translate(0,0,1400);
   }
 
 }

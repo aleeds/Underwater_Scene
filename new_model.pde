@@ -126,7 +126,6 @@ FullSystem MakeCoral() {
   String[] more_gotos = {"FAFA","FA!FA-FA"};
   rules.add(new StochLRule("F",more_gotos));
   rules.add(new LRule("X","%-%+!FAFA"));
-  FullSystem ret = new FullSystem(draw,rules,"A");
-  ret.seed = second();
+  FullSystem ret = new FullSystem(draw,rules,"A",0,0,0);
   return ret;
 }

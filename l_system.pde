@@ -73,19 +73,24 @@ class FullSystem {
   ArrayList<LRule> rules;
   String start;
   long seed;
-  FullSystem(LSystem systm, ArrayList<LRule> rul,String str) {
+  PVector pos;
+  FullSystem(LSystem systm, ArrayList<LRule> rul,String str,int x, int y, int z) {
     lsystem = systm;
     rules = rul;
     start = str;
+    pos = new PVector(x,y,z);
   }
 
   void Draw(int i,int len) {
-     //randomSeed(seed);
-     String begin = start;
-     for (int q = 0;q < i;++q) begin = NextL(begin,rules);
+     randomSeed(seed);
+     noStroke();
+     if (start.length() < 5){
+       for (int q = 0;q < i;++q) start = NextL(start,rules);
+     }
      pushMatrix();
-     DrawL(begin,lsystem,len);
-     println(begin);
+     translate(pos.x,pos.y,pos.z);
+     println(pos.x,pos.y,pos.z);
+     DrawL(start,lsystem,len);
      popMatrix();
   }
 }

@@ -50,6 +50,8 @@ class Fish {
       angle = random(0, 2 * PI);
     }
   }
+
+
 }
 
 class Fish_Colony {
@@ -80,6 +82,7 @@ class Fish_Colony {
     stroke(75);
     fill(135);
     sphereDetail(10);
+    noStroke();
     for (Fish fish : fishes) fish.Draw(pos);
   }
 
