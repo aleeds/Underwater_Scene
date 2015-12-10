@@ -10,23 +10,45 @@
 class Fish {
   PVector pos;
   PVector vel;
-  int size;
-  Fish(PVector pos_,PVector vel_,int size_) {
+  float size;
+  TextureSphere sphere;
+  float angle;
+  Fish(PVector pos_,PVector vel_,float size_,TextureSphere sp) {
     pos = pos_;
     vel = vel_;
     size = size_;
+    sphere = sp;
+    angle = random(0, 2 * PI);
   }
 
-  void Draw(PVector pos) {
-    // want this to be a texture mapped shape of some kind.
+  void Draw(PVector center) {
+    pushMatrix();
+    translate(center.x,center.y ,center.z);
+    translate(pos.x * cos(pos.y) * sin(pos.z),
+              pos.x * sin(pos.y) * sin(pos.z),
+              pos.x * cos(pos.z));
+    rotateX(angle);
+    sphere.display();
+    popMatrix();
   }
 
   void UpdatePosition(PVector center,int rad) {
-    // add stuff described in the comment at the top of the file
+    pos.x += vel.x;
+    if (pos.x > rad) {
+      vel.x *= -1;
+    }
+    pos.y += vel.y;
+    pos.z += vel.z;
   }
 
-  void VelocityUpdate() {
-    // add random update stuff
+  void VelocityUpdate(float rad) {
+    if (random(0,50) < 5) {
+      PVector vel_change = new PVector(random(0,rad / 1000.0),
+                                     random(-2 * PI / 400.0,2 * PI / 400.0),
+                                     random(-PI / 400.0,PI / 400.0));
+      vel.add(vel_change);
+      angle = random(0, 2 * PI);
+    }
   }
 }
 
@@ -35,30 +57,120 @@ class Fish_Colony {
   PVector pos;
   PVector vel;
   int rad;
-  Fish_Colony(PVector pos_,PVector vel_, int rad_, int num_fish) {
+  Fish_Colony(PVector pos_,PVector vel_, int rad_, int num_fish,PImage img) {
     pos = pos_;
     vel = vel_;
     rad = rad_;
-    // make fish
+    fishes = new ArrayList<Fish>();
+    TextureSphere sph = new TextureSphere(5,5,10,img);
+    for (int i = 0;i < num_fish;++i) {
+      PVector pos_fish = new PVector(random(0,rad),
+                                     random(0,2 * PI),
+                                     random(0,PI));
+      PVector vec_fish = new PVector(random(0,rad / 100.0),
+                                     random(-2 * PI / 100.0,2 * PI / 100.0),
+                                     random(-PI / 100.0,PI / 100.0));
+      sph.a = random(5,10);
+      sph.c = random(15,25);
+      fishes.add(new Fish(pos_fish,vec_fish,sph.a,sph));
+    }
   }
 
   void Draw() {
+    stroke(75);
+    fill(135);
+    sphereDetail(10);
     for (Fish fish : fishes) fish.Draw(pos);
+  }
+
+  float distanceTo(PVector p,Vec3D vec) {
+    float dx = p.x - vec.x;
+    float dy = p.y - vec.y;
+    float dz = p.z - vec.z;
+    return sqrt(dx * dx + dy * dy + dz * dz);
+
   }
 
   void UpdatePositionFish() {
     for (Fish fish : fishes) {
+      if (distanceTo(pos,cameraPos) > 1000) {
+        fish.sphere.nSegs = 5;
+      } else {
+        fish.sphere.nSegs = 10;
+      }
       fish.UpdatePosition(pos,rad);
+      fish.VelocityUpdate(rad);
     }
   }
 
   void UpdatePosition() {
-    // update using the vel, change the vel
+    pos.add(vel);
+    if (random(0,50) < 1) {
+      vel = new PVector(random(-10,10),random(-1,1),random(-10,10));
+    } else if (random(0,50) < 5) {
+      vel.add(new PVector(random(-5,5),random(-.1,.1),random(-1,1)));
+    }
   }
 
   void Advance() {
     Draw();
     UpdatePositionFish();
     UpdatePosition();
+  }
+}
+
+
+class TextureSphere {
+  int nSegs;
+  float a;
+  float c;
+  PImage img;
+
+  TextureSphere(float at, float ct, int numSegs, PImage tex) {
+   a = at;
+   c = ct;
+   nSegs = numSegs;
+   img = tex;
+  }
+
+  float xpos(float u, float v) {
+    return (a * cos(v)) * cos(u);
+  }
+
+  float ypos(float u, float v) {
+    return (c * cos(v)) * sin(u);
+  }
+
+  float zpos(float u, float v) {
+   return a * sin(v);
+  }
+
+  void createVertex(float u, float v) {
+   float x = xpos(u,v);
+   float y = ypos(u,v);
+   float z = zpos(u,v);
+
+   PVector norm = new PVector(x,y,z);
+   norm.normalize();
+   normal(norm.x,norm.y,norm.z);
+   vertex(x,y,z,map(u,0,2 * PI,0,1),map(v,-PI, PI, 0,1));
+  }
+
+  void display() {
+    beginShape(QUADS);
+    texture(img);
+    textureMode(NORMAL);
+    float ustep = 2 * PI / nSegs;
+    float vstep = PI / nSegs;
+    for(float u = 0;u < 2 * PI; u += ustep) {
+      for(float v = -PI;v < PI;v += vstep) {
+        createVertex(u,v);
+        createVertex(u + ustep,v);
+        createVertex(u + ustep,v + vstep);
+        createVertex(u,v + vstep);
+      }
+    }
+
+    endShape();
   }
 }
