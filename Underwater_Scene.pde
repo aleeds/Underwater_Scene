@@ -2,8 +2,9 @@ import toxi.geom.Vec3D;
 import toxi.geom.Matrix4x4;
 
 PShader shade;
-QuadTree root;
-boolean sha;
+PImage imgFloor;
+QuadTree ocean;
+GerWave[] waves;
 
 float rotationAngle;
 float elevationAngle;
@@ -38,28 +39,55 @@ class LightningDraw extends LSystem {
 
 Fish_Colony colony;
 
-void setup()
-{
+void andy_setup() {
   size(900,900,P3D);
-  noStroke();
-  radius = 300f;
-  //cameraPos = new Vec3D(0,0,radius);
   cameraPos = new Vec3D(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0));
   printVec3D(cameraPos,"Camera Pos");
   cameraUp = new Vec3D(0,-1,0);
   cameraDirection = new Vec3D(0,0,-100);
-  //rotationAngle = PI / 2.0;
-  //elevationAngle = 0;
-//  shade = loadShader("waterFragment.glsl", "waterVertex.glsl");
-  lights();
-  root = new QuadTree(new Coordinate(0, 0, 0), 8000.0);
-
-  for(int i=0; i<6; i++) root.subdivideAll();
   dragged = rolled = false;
   PImage img = loadImage("fish.jpg");
   colony = new Fish_Colony(new PVector(0,0,0),new PVector(0,0,0),100,20,img);
   MakeLightningBolt();
+}
 
+void setup() {
+  if (is_andy) {
+    andy_setup();
+  } else {
+    size(900,900,P3D);
+    noStroke();
+    radius = 300f;
+    //cameraPos = new Vec3D(0,0,radius);
+    cameraPos = new Vec3D(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0));
+    printVec3D(cameraPos,"Camera Pos");
+    cameraUp = new Vec3D(0,-1,0);
+    cameraDirection = new Vec3D(0,0,-100);
+    //rotationAngle = PI / 2.0;
+    //elevationAngle = 0;
+  //  shade = loadShader("waterFragment.glsl", "waterVertex.glsl");
+    lights();
+    root = new QuadTree(new Coordinate(0, 0, 0), 8000.0);
+
+    for(int i=0; i<6; i++) root.subdivideAll();
+    shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
+    imgFloor = loadImage("OceanFloor.jpg");
+    shade.set("textureFloor", imgFloor);
+    imageMode(CENTER);
+    int k = 1;
+    waves = new GerWave[k];
+    for(int i = 0; i < k; i++)
+    {
+      PVector tmp = new PVector(map(randomGaussian(), -20.0, 20.0, -1.0, 1.0), map(randomGaussian(), -20.0, 20.0, -1.0, 1.0), 0.0);
+      tmp.normalize();
+      waves[i] = new GerWave(tmp, map(randomGaussian(), -50.0, 50.0, 0.0, 1.0)*50.0, map(randomGaussian(), -50.0, 50.0, 0.0, 1.0)*80.0, map(randomGaussian(), -50.0, 50.0, 0.0, 1.0)*40.0);
+    }
+    ocean = new QuadTree(new Coordinate(0, 0, 0), 8192.0, waves);
+
+
+    for(int i=0; i<6; i++) ocean.subdivideAll();
+    dragged = rolled = false;
+  }
 }
 
 void MakeLightningBolt() {
@@ -117,7 +145,7 @@ void draw() {
   if (is_andy) {
     andy_draw();
   } else {
-  getCamera();
+    getCamera();
   //  shader(shade);
     background(0);
     pointLight(255, 255, 255, 500, 500, 1000);
@@ -126,5 +154,20 @@ void draw() {
     root.updateAndDisplay();
     dragged = false;
     rolled = false;
+    getCamera();
+    shader(shade);
+    background(111, 193, 237);
+    pointLight(255, 255, 255, 500, 50000, 16000);
+    fill(255);
+
+    ocean.gerWaveDisplay();
+    resetShader();
+
+    dragged = false;
+    rolled = false;
+    translate(0,0,-1400);
+    image(imgFloor, 0, 0, 16384, 16384);
   }
+
+ // noLoop();
 }
