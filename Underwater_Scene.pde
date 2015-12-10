@@ -32,6 +32,7 @@ void setup()
   ocean = new QuadTree(new Coordinate(0, 0, 0), 8192.0, waves);
   
 
+  for(int i=0; i<5; i++) ocean.subdivideAll();
   dragged = rolled = false;
   prevAxis = new Vec3D(0,1,0);
 }
