@@ -11,10 +11,14 @@ class Fish {
   PVector pos;
   PVector vel;
   float size;
-  Fish(PVector pos_,PVector vel_,float size_) {
+  TextureSphere sphere;
+  float angle;
+  Fish(PVector pos_,PVector vel_,float size_,TextureSphere sp) {
     pos = pos_;
     vel = vel_;
     size = size_;
+    sphere = sp;
+    angle = random(0, 2 * PI);
   }
 
   void Draw(PVector center) {
@@ -23,7 +27,8 @@ class Fish {
     translate(pos.x * cos(pos.y) * sin(pos.z),
               pos.x * sin(pos.y) * sin(pos.z),
               pos.x * cos(pos.z));
-    sphere(size);
+    rotateX(angle);
+    sphere.display();
     popMatrix();
   }
 
@@ -42,6 +47,7 @@ class Fish {
                                      random(-2 * PI / 400.0,2 * PI / 400.0),
                                      random(-PI / 400.0,PI / 400.0));
       vel.add(vel_change);
+      angle = random(0, 2 * PI);
     }
   }
 }
@@ -51,11 +57,12 @@ class Fish_Colony {
   PVector pos;
   PVector vel;
   int rad;
-  Fish_Colony(PVector pos_,PVector vel_, int rad_, int num_fish) {
+  Fish_Colony(PVector pos_,PVector vel_, int rad_, int num_fish,PImage img) {
     pos = pos_;
     vel = vel_;
     rad = rad_;
     fishes = new ArrayList<Fish>();
+    TextureSphere sph = new TextureSphere(5,5,10,img);
     for (int i = 0;i < num_fish;++i) {
       PVector pos_fish = new PVector(random(0,rad),
                                      random(0,2 * PI),
@@ -63,7 +70,9 @@ class Fish_Colony {
       PVector vec_fish = new PVector(random(0,rad / 100.0),
                                      random(-2 * PI / 100.0,2 * PI / 100.0),
                                      random(-PI / 100.0,PI / 100.0));
-      fishes.add(new Fish(pos_fish,vec_fish,random(5,15)));
+      sph.a = random(5,10);
+      sph.c = random(15,25);
+      fishes.add(new Fish(pos_fish,vec_fish,sph.a,sph));
     }
   }
 
@@ -74,8 +83,21 @@ class Fish_Colony {
     for (Fish fish : fishes) fish.Draw(pos);
   }
 
+  float distanceTo(PVector p,Vec3D vec) {
+    float dx = p.x - vec.x;
+    float dy = p.y - vec.y;
+    float dz = p.z - vec.z;
+    return sqrt(dx * dx + dy * dy + dz * dz);
+
+  }
+
   void UpdatePositionFish() {
     for (Fish fish : fishes) {
+      if (distanceTo(pos,cameraPos) > 1000) {
+        fish.sphere.nSegs = 5;
+      } else {
+        fish.sphere.nSegs = 10;
+      }
       fish.UpdatePosition(pos,rad);
       fish.VelocityUpdate(rad);
     }
@@ -94,5 +116,61 @@ class Fish_Colony {
     Draw();
     UpdatePositionFish();
     UpdatePosition();
+  }
+}
+
+
+class TextureSphere {
+  int nSegs;
+  float a;
+  float c;
+  PImage img;
+
+  TextureSphere(float at, float ct, int numSegs, PImage tex) {
+   a = at;
+   c = ct;
+   nSegs = numSegs;
+   img = tex;
+  }
+
+  float xpos(float u, float v) {
+    return (a * cos(v)) * cos(u);
+  }
+
+  float ypos(float u, float v) {
+    return (c * cos(v)) * sin(u);
+  }
+
+  float zpos(float u, float v) {
+   return a * sin(v);
+  }
+
+  void createVertex(float u, float v) {
+   float x = xpos(u,v);
+   float y = ypos(u,v);
+   float z = zpos(u,v);
+
+   PVector norm = new PVector(x,y,z);
+   norm.normalize();
+   normal(norm.x,norm.y,norm.z);
+   vertex(x,y,z,map(u,0,2 * PI,0,1),map(v,-PI, PI, 0,1));
+  }
+
+  void display() {
+    beginShape(QUADS);
+    texture(img);
+    textureMode(NORMAL);
+    float ustep = 2 * PI / nSegs;
+    float vstep = PI / nSegs;
+    for(float u = 0;u < 2 * PI; u += ustep) {
+      for(float v = -PI;v < PI;v += vstep) {
+        createVertex(u,v);
+        createVertex(u + ustep,v);
+        createVertex(u + ustep,v + vstep);
+        createVertex(u,v + vstep);
+      }
+    }
+
+    endShape();
   }
 }

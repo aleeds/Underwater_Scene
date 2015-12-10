@@ -36,7 +36,7 @@ class LightningDraw extends LSystem {
   }
 }
 
-Fish_Colony colony = new Fish_Colony(new PVector(0,0,0),new PVector(0,0,0),100,20);
+Fish_Colony colony;
 
 void setup()
 {
@@ -56,7 +56,8 @@ void setup()
 
   for(int i=0; i<6; i++) root.subdivideAll();
   dragged = rolled = false;
-
+  PImage img = loadImage("fish.jpg");
+  colony = new Fish_Colony(new PVector(0,0,0),new PVector(0,0,0),100,20,img);
   MakeLightningBolt();
 
 }
@@ -84,7 +85,7 @@ void andy_draw() {
   fill(color(255,0,0));
   pushMatrix();
   translate(width / 2.0,height / 2.0,0);
-  //box(100);
+  box(100);
   colony.Advance();
   translate(200,0,0);
   //sphere(100);

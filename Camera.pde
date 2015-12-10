@@ -35,9 +35,8 @@ void JankyHackCamera(float dx,float dy) {
   cameraDirection = RotateAroundAxis(cameraDirection,right,dy);
   cameraDirection.normalize();
   cameraUp.normalize();
-  right = cameraUp.cross(cameraDirection);
   right.normalize();
-  cameraUp = RotateAroundAxis(cameraUp,right,dy);
+  //cameraUp = RotateAroundAxis(cameraUp,right,dy);
   cameraUp.normalize();
   cameraDirection = cameraDirection.scale(100);
 }
@@ -47,23 +46,13 @@ void JankyHackCamera(float dx,float dy) {
 void MoveCamera() {
    float dx = mouseX - pmouseX;
    float dy = mouseY - pmouseY;
-   float num_hacks = 1.0;
+   float num_hacks = 100.0;
    float amtx_max = dx * PI / 256;
    float amtx = amtx_max / num_hacks;
    float amty_max = dy * PI / 256;
    float amty = amty_max / num_hacks;
    Vec3D right = cameraUp.cross(cameraDirection);
-   right.normalize();
-   cameraUp.normalize();
-   Vec3D axis = right.scale(amty_max).add(cameraUp.scale(amtx_max));
-   float mag = sqrt(amtx_max * amtx_max + amty_max * amty_max);
-   axis.normalize();
-   cameraDirection = RotateAroundAxis(cameraDirection,axis,mag);
-   cameraDirection.normalize();
-   right.normalize();
-   cameraUp = RotateAroundAxis(cameraUp,axis,mag);
-   cameraDirection = cameraDirection.scale(100);
-   for (float i = 10;i < num_hacks;i += 1) {
+   for (float i = 0;i < num_hacks;i += 1) {
      JankyHackCamera(amtx,amty);
    }
 }
