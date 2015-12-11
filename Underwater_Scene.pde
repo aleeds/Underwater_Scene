@@ -39,24 +39,25 @@ class LightningDraw extends LSystem {
 
 Fish_Colony colony;
 ArrayList<FullSystem> corals;
+ArrayList<FullSystem> rocks;
 void andy_setup() {
   size(900,900,P3D);
-  cameraPos = new Vec3D(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0));
-//  printVec3D(cameraPos,"Camera Pos");
+  cameraPos = new Vec3D(449, 1042, 239);
   cameraUp = new Vec3D(0,1,0);
-  cameraDirection = new Vec3D(0,0,-100);
+  cameraDirection = new Vec3D(-6.0,42,90);
   dragged = rolled = false;
   PImage img = loadImage("fish.jpg");
   colony = new Fish_Colony(new PVector(0,0,0),new PVector(10,-1,2),100,20,img);
   //MakeLightningBolt();
   ArrayList<PVector> pos_corals = new ArrayList<PVector>();
-  pos_corals.add(new PVector(100,0,75));
-  pos_corals.add(new PVector(200,0,300));
-  pos_corals.add(new PVector(-160,0,430));
-  pos_corals.add(new PVector(1000,0,600));
-  pos_corals.add(new PVector(-100,0,-1000));
+  pos_corals.add(new PVector(100,800,75));
+  pos_corals.add(new PVector(200,800,300));
+  pos_corals.add(new PVector(-160,800,430));
+  pos_corals.add(new PVector(1000,800,600));
+  pos_corals.add(new PVector(-100,800,-1000));
   int[] len = {5,6,4,7,9};
   corals = MakeManyCorals(pos_corals,len);
+  rocks = MakeManyRocks(pos_corals,len);
 }
 
 void setup() {
@@ -107,6 +108,8 @@ void setup() {
 boolean is_andy = false;
 
 void andy_draw() {
+  printVec3D(cameraPos,"Position");
+  printVec3D(cameraDirection,"Direction");
   background(color(15,84,107));
   getCamera();
   lights();
@@ -125,7 +128,21 @@ void andy_draw() {
   popMatrix();
   imageMode(CENTER);
   pushMatrix();
-  for (FullSystem coral : corals) coral.Draw(3,5);
+  for (FullSystem coral : corals) {
+    pushMatrix();
+    translate(-width / 2, -height / 2,0);
+    //rotateX(PI / 2);
+    translate(width / 2, height / 2,0);
+    //translate(0,-1400,0);
+    coral.Draw(3,15);
+    popMatrix();
+  }
+  for (FullSystem rock : rocks) {
+    pushMatrix();
+      rock.Draw(3,15);
+    popMatrix();
+  }
+
   colony.Advance();
   popMatrix();
 

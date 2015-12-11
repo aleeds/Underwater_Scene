@@ -129,3 +129,52 @@ FullSystem MakeCoral() {
   FullSystem ret = new FullSystem(draw,rules,"A",0,0,0);
   return ret;
 }
+
+class RockDraw extends LSystem {
+  void DrawChar(char c, int len) {
+    if (c == 'F') {
+      translate(0,len / random(.3,3),0);
+    } else if (c == '[') {
+      pushMatrix();
+    } else if (c == ']') {
+      popMatrix();
+    } else if (c == '-') {
+      rotateX(random(- PI / 6, PI / 15));
+    } else if (c == '!') {
+      rotateY(random(- PI / 6, PI / 15));
+    } else if (c == '+') {
+      rotateX(random(- PI / 15, PI / 6));
+    } else if (c == '@') {
+      rotateY(random(- PI / 15, PI / 6));
+    } else if (c == 'A') {
+      // need to change the colors.
+      fill(color(Pick(51),Pick(51),Pick(51)));
+      if (random(0,50) < 5) {
+        fill(color(Pick(6),Pick(6),Pick(6)));
+      }
+      sphereDetail(3);
+      sphere(len * random(.5,3));
+
+      translate(random(-1,1),random(-1,1),random(-1,1));
+    } else if (c == '%') {
+      rotateZ(random(-PI / 4, PI / 4));
+    }
+  }
+}
+
+float Pick(float a) {
+  return random(a - 5,a + 5);
+}
+
+FullSystem MakeRock() {
+  RockDraw draw = new RockDraw();
+  ArrayList<LRule> rules = new ArrayList<LRule>();
+  String[] gotos = {"[F-A--FAFA]X[--FF%!AF%FA]!FA","[A+F+F]X[FA!+!F][FAFA]"};
+  rules.add(new StochLRule("A",gotos));
+  String[] more_gotos = {"[--F+F@A]","[F%F!AF%F-]","[F]","[F]","F-F","F+F+F"};
+  rules.add(new StochLRule("F",more_gotos));
+  rules.add(new LRule("X","%-%+!FAFA"));
+  FullSystem ret = new FullSystem(draw,rules,"A",0,0,0);
+  ret.seed = second();
+  return ret;
+}
