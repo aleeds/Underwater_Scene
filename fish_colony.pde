@@ -107,12 +107,7 @@ class Fish_Colony {
   }
 
   void UpdatePosition() {
-    pos.add(vel);
-    if (random(0,50) < 1) {
-      vel = new PVector(random(-10,10),random(-1,1),random(-10,10));
-    } else if (random(0,50) < 5) {
-      vel.add(new PVector(random(-5,5),random(-.1,.1),random(-1,1)));
-    }
+
   }
 
   void Advance() {

@@ -42,20 +42,20 @@ ArrayList<FullSystem> corals;
 ArrayList<FullSystem> rocks;
 void andy_setup() {
   size(900,900,P3D);
-  cameraPos = new Vec3D(449, 1042, 239);
+  cameraPos = new Vec3D(394, 1171, -76);
   cameraUp = new Vec3D(0,1,0);
-  cameraDirection = new Vec3D(-6.0,42,90);
+  cameraDirection = new Vec3D(7,12,99);
   dragged = rolled = false;
   PImage img = loadImage("fish.jpg");
-  colony = new Fish_Colony(new PVector(0,0,0),new PVector(10,-1,2),100,20,img);
+  colony = new Fish_Colony(new PVector(-160,800,430),new PVector(10,-1,2),400,20,img);
   //MakeLightningBolt();
   ArrayList<PVector> pos_corals = new ArrayList<PVector>();
-  pos_corals.add(new PVector(100,800,75));
+  //pos_corals.add(new PVector(100,800,75));
   pos_corals.add(new PVector(200,800,300));
   pos_corals.add(new PVector(-160,800,430));
-  pos_corals.add(new PVector(1000,800,600));
+  //pos_corals.add(new PVector(1000,800,600));
   pos_corals.add(new PVector(-100,800,-1000));
-  int[] len = {5,6,4,7,9};
+  int[] len = {6,4,9};
   corals = MakeManyCorals(pos_corals,len);
   rocks = MakeManyRocks(pos_corals,len);
 }
@@ -105,7 +105,7 @@ void setup() {
 //   translate(-x,-y,-z);
 // }
 
-boolean is_andy = false;
+boolean is_andy = true;
 
 void andy_draw() {
   printVec3D(cameraPos,"Position");
