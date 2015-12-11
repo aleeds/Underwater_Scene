@@ -104,7 +104,7 @@ void setup() {
 //   translate(-x,-y,-z);
 // }
 
-boolean is_andy = true;
+boolean is_andy = false;
 
 void andy_draw() {
   background(color(15,84,107));
