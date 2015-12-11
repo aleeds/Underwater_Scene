@@ -89,7 +89,6 @@ class FullSystem {
      }
      pushMatrix();
      translate(pos.x,pos.y,pos.z);
-     println(pos.x,pos.y,pos.z);
      DrawL(start,lsystem,len);
      popMatrix();
   }
