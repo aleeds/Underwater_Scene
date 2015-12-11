@@ -41,14 +41,11 @@ Fish_Colony colony;
 ArrayList<FullSystem> corals;
 ArrayList<FullSystem> rocks;
 void andy_setup() {
-<<<<<<< HEAD
-=======
   size(900,900,P3D);
   cameraPos = new Vec3D(394, 1171, -76);
   cameraUp = new Vec3D(0,1,0);
   cameraDirection = new Vec3D(7,12,99);
   dragged = rolled = false;
->>>>>>> origin/master
   PImage img = loadImage("fish.jpg");
   colony = new Fish_Colony(new PVector(-160,800,430),new PVector(10,-1,2),400,20,img);
   //MakeLightningBolt();
@@ -72,7 +69,7 @@ void setup() {
   if (is_andy) {
     andy_setup();
   } else {
-    
+
     noStroke();
     lights();
     shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
@@ -164,13 +161,13 @@ void draw() {
     getCamera();
     resetShader();
 
-    if(cameraPos.z <= 0) 
+    if(cameraPos.z <= 0)
     {
       image(imgCeil, 0, 0, 16384, 16384);
       shade.set("textFloor", imgCeil);
       shade.set("zSign", 1.0);
     }
-    else 
+    else
     {
       shade.set("textFloor", imgFloor);
       shade.set("zSign", -1.0);
@@ -181,14 +178,14 @@ void draw() {
     fill(255);
 
     ocean.gerWaveDisplay();
-    resetShader();   
+    resetShader();
     keyPressedLocal();
     dragged = false;
     rolled = false;
     translate(0,0,-1400);
     image(imgFloor, 0, 0, 16384, 16384);
     translate(0,0,1400);
-    if(cameraPos.z <= 0) 
+    if(cameraPos.z <= 0)
     {
       tint(190, 255, 255);
       //filter(underWater);
