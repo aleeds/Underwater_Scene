@@ -41,14 +41,6 @@ Fish_Colony colony;
 ArrayList<FullSystem> corals;
 ArrayList<FullSystem> rocks;
 void andy_setup() {
-<<<<<<< HEAD
-=======
-  size(900,900,P3D);
-  cameraPos = new Vec3D(394, 1171, -76);
-  cameraUp = new Vec3D(0,1,0);
-  cameraDirection = new Vec3D(7,12,99);
-  dragged = rolled = false;
->>>>>>> origin/master
   PImage img = loadImage("fish.jpg");
   colony = new Fish_Colony(new PVector(-160,800,430),new PVector(10,-1,2),400,20,img);
   //MakeLightningBolt();
@@ -61,6 +53,27 @@ void andy_setup() {
   int[] len = {6,4,9};
   corals = MakeManyCorals(pos_corals,len);
   rocks = MakeManyRocks(pos_corals,len);
+  noStroke();
+  lights();
+  shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
+  underWater = loadShader("underwaterfrag.glsl");
+  imgFloor = loadImage("OceanFloor.jpg");
+  imgCeil = loadImage("Sky.jpg");
+  shade.set("textFloor", imgFloor);
+  shade.set("zSign", -1.0);
+  imageMode(CENTER);
+  int k = 1;
+  waves = new GerWave[k];
+  for(int i = 0; i < k; i++)
+  {
+    PVector tmp = new PVector(map(randomGaussian(), -20.0, 20.0, -1.0, 1.0), map(randomGaussian(), -20.0, 20.0, -1.0, 1.0), 0.0);
+    tmp.normalize();
+    waves[i] = new GerWave(tmp, map(randomGaussian(), -50.0, 50.0, 0.0, 1.0)*50.0, map(randomGaussian(), -50.0, 50.0, 0.0, 1.0)*80.0, map(randomGaussian(), -50.0, 50.0, 0.0, 1.0)*40.0);
+  }
+  ocean = new QuadTree(new Coordinate(0, 0, 0), 8192.0, waves);
+
+
+  for(int i=0; i<6; i++) ocean.subdivideAll();
 }
 
 void setup() {
@@ -116,22 +129,45 @@ boolean is_andy = true;
 void andy_draw() {
   printVec3D(cameraPos,"Position");
   printVec3D(cameraDirection,"Direction");
-  background(color(15,84,107));
+  background(color(111,193,237));
   getCamera();
   lights();
   fill(color(255,0,0));
   pushMatrix();
   //MakeWalls();
   translate(width / 2.0,height / 2.0,0);
-  shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
-  shade.set("textFloor", imgFloor);
-  imgFloor = loadImage("OceanFloor.jpg");
+  imageMode(CENTER);
   pushMatrix();
   rotateX(PI / 2);
   translate(0,0,-1400);
 
   image(imgFloor, 0, 0, 16384, 16384);
   popMatrix();
+  
+ if(cameraPos.z <= 0) 
+  {
+    image(imgCeil, 0, 0, 16384, 16384);
+    shade.set("textFloor", imgCeil);
+    shade.set("zSign", 1.0);
+  }
+  else 
+  {
+    shade.set("textFloor", imgFloor);
+    shade.set("zSign", -1.0);
+  }
+  shader(shade);
+  noStroke();
+  ocean.gerWaveDisplay();
+  if(cameraPos.z <= 0) 
+  {
+    tint(190, 255, 255);
+    //filter(underWater);
+  }
+  else
+  {
+    noTint();
+  }
+  
   imageMode(CENTER);
   pushMatrix();
   for (FullSystem coral : corals) {
@@ -153,6 +189,8 @@ void andy_draw() {
   popMatrix();
 
   popMatrix();
+  noStroke();
+  
   stroke(255);
   keyPressedLocal();
 }
