@@ -137,7 +137,7 @@ void andy_draw() {
   background(color(111,193,237));
   getCamera();
   lights();
-  fill(color(255,0,0));
+ // fill(color(255,0,0)); this is why everything was red
   pushMatrix();
   //MakeWalls();
   translate(width / 2.0,height / 2.0,0);
@@ -149,13 +149,14 @@ void andy_draw() {
   pushMatrix();
   translate(0,1000,0);
   rotateX(PI / 2);
+ // colorMode(RGB);
   image(imgFloor, 0, 0, 16384, 16384);
   popMatrix();
   popMatrix();
 
  if(cameraPos.z <= 0)
   {
-    image(imgCeil, 0, 0, 16384, 16384);
+//    image(imgCeil, 0, 0, 16384, 16384);
     shade.set("textFloor", imgCeil);
     shade.set("zSign", 1.0);
   }
@@ -169,6 +170,7 @@ void andy_draw() {
   ocean.gerWaveDisplay();
   if(cameraPos.z <= 0)
   {
+//    colorMode(RGB);
     tint(190, 255, 255);
     //filter(underWater);
   }
