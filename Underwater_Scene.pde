@@ -1,8 +1,8 @@
 import toxi.geom.Vec3D;
 import toxi.geom.Matrix4x4;
 
-PShader shade;
-PImage imgFloor;
+PShader shade, underWater;
+PImage imgFloor, imgCeil;
 QuadTree ocean;
 GerWave[] waves;
 
@@ -41,11 +41,14 @@ Fish_Colony colony;
 ArrayList<FullSystem> corals;
 ArrayList<FullSystem> rocks;
 void andy_setup() {
+<<<<<<< HEAD
+=======
   size(900,900,P3D);
   cameraPos = new Vec3D(394, 1171, -76);
   cameraUp = new Vec3D(0,1,0);
   cameraDirection = new Vec3D(7,12,99);
   dragged = rolled = false;
+>>>>>>> origin/master
   PImage img = loadImage("fish.jpg");
   colony = new Fish_Colony(new PVector(-160,800,430),new PVector(10,-1,2),400,20,img);
   //MakeLightningBolt();
@@ -61,19 +64,23 @@ void andy_setup() {
 }
 
 void setup() {
+  size(900,900,P3D);
+  cameraPos = new Vec3D(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0));
+  cameraUp = new Vec3D(0,1,0);
+  cameraDirection = new Vec3D(0,0,-100);
+  dragged = rolled = false;
   if (is_andy) {
     andy_setup();
   } else {
-    size(900,900,P3D);
+    
     noStroke();
-    radius = 300f;
-    cameraPos = new Vec3D(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0));
-    cameraUp = new Vec3D(0,-1,0);
-    cameraDirection = new Vec3D(0,0,-100);
     lights();
     shade = loadShader("pixlitfrag.glsl", "pixlitvert.glsl");
+    underWater = loadShader("underwaterfrag.glsl");
     imgFloor = loadImage("OceanFloor.jpg");
+    imgCeil = loadImage("Sky.jpg");
     shade.set("textFloor", imgFloor);
+    shade.set("zSign", -1.0);
     imageMode(CENTER);
     int k = 1;
     waves = new GerWave[k];
@@ -87,7 +94,6 @@ void setup() {
 
 
     for(int i=0; i<6; i++) ocean.subdivideAll();
-    dragged = rolled = false;
   }
 }
 
@@ -156,22 +162,41 @@ void draw() {
     andy_draw();
   } else {
     getCamera();
-    shader(shade);
-    background(0);
-    pointLight(255, 255, 255, 500, 500, 1000);
-    fill(255);
+    resetShader();
+
+    if(cameraPos.z <= 0) 
+    {
+      image(imgCeil, 0, 0, 16384, 16384);
+      shade.set("textFloor", imgCeil);
+      shade.set("zSign", 1.0);
+    }
+    else 
+    {
+      shade.set("textFloor", imgFloor);
+      shade.set("zSign", -1.0);
+    }
     shader(shade);
     background(111, 193, 237);
     pointLight(255, 255, 255, 500, 50000, 16000);
     fill(255);
 
     ocean.gerWaveDisplay();
-    resetShader();
-
+    resetShader();   
+    keyPressedLocal();
     dragged = false;
     rolled = false;
     translate(0,0,-1400);
     image(imgFloor, 0, 0, 16384, 16384);
+    translate(0,0,1400);
+    if(cameraPos.z <= 0) 
+    {
+      tint(190, 255, 255);
+      //filter(underWater);
+    }
+    else
+    {
+      noTint();
+    }
   }
 
 }
