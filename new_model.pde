@@ -109,7 +109,7 @@ class CoralDraw extends LSystem {
       if (random(0,50) < 35) {
         sphere(len);
       } else {
-        box(len);
+        sphere(len * 1.1);
       }
       translate(random(-1,1),random(-1,1),random(-1,1));
     } else if (c == '%') {
