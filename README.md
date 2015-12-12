@@ -15,4 +15,6 @@ For the camera, I used the quaternion model, from the quaternion and spacial rot
 
 Both WASD and the arrow keys work for the position movement.
 
+I completed the texture mapping of a nontrivial shape (fish scales, on tori), and two non-trivial LSystems. 
+
 #### Evan's description of the parts he did
