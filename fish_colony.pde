@@ -64,7 +64,7 @@ class Fish_Colony {
     vel = vel_;
     rad = rad_;
     fishes = new ArrayList<Fish>();
-    TextureSphere sph = new TextureSphere(5,5,10,img);
+    TextureSphere sph = new TextureSphere(5,5,20,10,img);
     for (int i = 0;i < num_fish;++i) {
       PVector pos_fish = new PVector(random(0,rad),
                                      random(0,2 * PI),
@@ -122,21 +122,23 @@ class TextureSphere {
   int nSegs;
   float a;
   float c;
+  float t_s;
   PImage img;
 
-  TextureSphere(float at, float ct, int numSegs, PImage tex) {
+  TextureSphere(float at, float ct,float t_st, int numSegs, PImage tex) {
    a = at;
    c = ct;
+   t_s = t_st;
    nSegs = numSegs;
    img = tex;
   }
 
   float xpos(float u, float v) {
-    return (a * cos(v)) * cos(u);
+    return (t_s + a * cos(v)) * cos(u);
   }
 
   float ypos(float u, float v) {
-    return (c * cos(v)) * sin(u);
+    return (t_s + c * cos(v)) * sin(u);
   }
 
   float zpos(float u, float v) {
@@ -144,7 +146,7 @@ class TextureSphere {
   }
 
   void createVertex(float u, float v) {
-   float x = xpos(u,v);
+   float x = 2 * xpos(u,v);
    float y = ypos(u,v);
    float z = zpos(u,v);
 

@@ -106,11 +106,7 @@ class CoralDraw extends LSystem {
         fill(color(113 - random(-30,30),random(238 - 50,255),random(169,200)));
       }
       sphereDetail(3);
-      if (random(0,50) < 35) {
-        sphere(len);
-      } else {
-        sphere(len * 1.1);
-      }
+      sphere(len);
       translate(random(-1,1),random(-1,1),random(-1,1));
     } else if (c == '%') {
       rotateZ(random(-PI / 4, PI / 4));

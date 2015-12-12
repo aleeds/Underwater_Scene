@@ -47,7 +47,7 @@ void andy_setup() {
   cameraDirection = new Vec3D(-33,91,-23);
   dragged = rolled = false;
   PImage img = loadImage("fish.jpg");
-  colony = new Fish_Colony(new PVector(-160,800,430),new PVector(10,-1,2),400,20,img);
+  colony = new Fish_Colony(new PVector(435,567,-751),new PVector(0,0,0),400,20,img);
   //MakeLightningBolt();
   ArrayList<PVector> pos_corals = new ArrayList<PVector>();
   //pos_corals.add(new PVector(100,800,75));
@@ -171,7 +171,8 @@ void andy_draw() {
   if(cameraPos.z <= 0)
   {
 //    colorMode(RGB);
-    tint(190, 255, 255);
+    //tint(190, 255, 255);
+    //tint(100, 200, 200);
     //filter(underWater);
   }
   else
@@ -179,6 +180,7 @@ void andy_draw() {
     noTint();
   }
   // I drew this, from this line
+  resetShader();
   imageMode(CENTER);
   pushMatrix();
   for (FullSystem coral : corals) {
@@ -199,6 +201,7 @@ void andy_draw() {
   }
 
   colony.Advance();
+
   // to this line
   popMatrix();
 
