@@ -272,7 +272,7 @@ void getSound()
 {
   randomSeed((long)(cameraPos.x*cameraPos.y/cameraPos.z)); // I shouldnt have to do this, but for whatever reason, tmp stops changing
   float tmp = random(1);
-  println(tmp);
+//  println(tmp);
   if (above && cameraPos.z <= -5)
   {
     above = false;
