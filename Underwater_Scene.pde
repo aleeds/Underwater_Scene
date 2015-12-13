@@ -171,7 +171,7 @@ void andy_draw() {
   if(cameraPos.z <= 0)
   {
 //    colorMode(RGB);
-    //tint(190, 255, 255);
+    tint(190, 255, 255);
     //tint(100, 200, 200);
     //filter(underWater);
   }
