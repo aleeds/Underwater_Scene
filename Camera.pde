@@ -66,10 +66,9 @@ Vec3D RotateCameraAngle(Vec3D tmp,float theta) {
 }
 
 void RotateCamera() {
-   float dx = mouseX - pmouseX;
-   float dy = mouseY;
-   if (mouseY < 0) dx = -dx;
-   cameraUp = RotateCameraAngle(cameraUp,dx * PI / 512);
+   float a = atan2(mouseY-height/2, mouseX-width/2);
+   float a_p = atan2(pmouseY - height / 2,pmouseX - width / 2);
+   cameraUp = RotateCameraAngle(cameraUp,a - a_p);
 }
 
 Vec3D RotateAroundAxis(Vec3D rotate,Vec3D axis, float theta) {
