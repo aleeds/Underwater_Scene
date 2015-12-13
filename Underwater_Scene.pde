@@ -188,7 +188,7 @@ void andy_draw() {
     translate(0,-500,0);
     rotateX(-PI / 2);
     translate(0,-150,0);
-    coral.Draw(3,15);
+    coral.Draw(4,15);
     popMatrix();
   }
   for (FullSystem rock : rocks) {

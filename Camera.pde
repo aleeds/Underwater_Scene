@@ -66,13 +66,10 @@ Vec3D RotateCameraAngle(Vec3D tmp,float theta) {
 }
 
 void RotateCamera() {
-   PVector first = new PVector(mouseX, mouseY);
-   first.normalize();
-   PVector second = new PVector(pmouseX, pmouseY);
-   second.normalize();
-   float ang_one = acos(first.dot(new PVector(1,0)));
-   float ang_two = acos(second.dot(new PVector(1,0)));
-   cameraUp = RotateCameraAngle(cameraUp,ang_one - ang_two);
+   float dx = mouseX - pmouseX;
+   float dy = mouseY;
+   if (mouseY < 0) dx = -dx;
+   cameraUp = RotateCameraAngle(cameraUp,dx * PI / 512);
 }
 
 Vec3D RotateAroundAxis(Vec3D rotate,Vec3D axis, float theta) {
