@@ -148,7 +148,7 @@ class RockDraw extends LSystem {
       if (random(0,50) < 5) {
         fill(color(Pick(6),Pick(6),Pick(6)));
       }
-      sphereDetail(20);
+      sphereDetail(10);
       sphere(len * random(.5,3));
 
       translate(random(-1,1),random(-1,1),random(-1,1));

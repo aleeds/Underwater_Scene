@@ -1,10 +1,14 @@
 import toxi.geom.Vec3D;
 import toxi.geom.Matrix4x4;
+import ddf.minim.*;
 
 PShader shade, underWater;
 PImage imgFloor, imgCeil;
 QuadTree ocean;
 GerWave[] waves;
+
+Minim minim;
+AudioPlayer[] players;
 
 float rotationAngle;
 float elevationAngle;
@@ -17,6 +21,8 @@ float angle_off = 0;
 Vec3D absolute_up = new Vec3D(0,-1,0);
 
 FullSystem lightning_bolt;
+
+boolean above = true;
 
 class LightningDraw extends LSystem {
   void DrawChar(char c,int len) {
@@ -41,11 +47,7 @@ Fish_Colony colony;
 ArrayList<FullSystem> corals;
 ArrayList<FullSystem> rocks;
 void andy_setup() {
-  size(900,900,P3D);
-  cameraPos = new Vec3D(625, -307, -539);
-  cameraUp = new Vec3D(0,0,-1);
-  cameraDirection = new Vec3D(-33,91,-23);
-  dragged = rolled = false;
+
   PImage img = loadImage("fish.jpg");
   colony = new Fish_Colony(new PVector(435,567,-751),new PVector(0,0,0),400,20,img);
   //MakeLightningBolt();
@@ -87,6 +89,15 @@ void setup() {
   cameraUp = new Vec3D(0,1,0);
   cameraDirection = new Vec3D(0,0,-100);
   dragged = rolled = false;
+  minim = new Minim(this);
+  players = new AudioPlayer[4];
+  players[0] = minim.loadFile("music.mp3");
+  players[1] = minim.loadFile("underwater.mp3");
+  players[2] = minim.loadFile("abovewater.mp3");
+  players[3] = minim.loadFile("gull.mp3");
+
+  players[0].loop();
+  players[2].loop();
   if (is_andy) {
     andy_setup();
   } else {
@@ -136,6 +147,7 @@ void andy_draw() {
   printVec3D(cameraDirection,"Direction");
   background(color(111,193,237));
   getCamera();
+  getSound();
   lights();
  // fill(color(255,0,0)); this is why everything was red
   pushMatrix();
@@ -254,4 +266,27 @@ void draw() {
     }
   }
 
+}
+
+void getSound()
+{
+  randomSeed((long)(cameraPos.x*cameraPos.y/cameraPos.z)); // I shouldnt have to do this, but for whatever reason, tmp stops changing
+  float tmp = random(1);
+  println(tmp);
+  if (above && cameraPos.z <= -5)
+  {
+    above = false;
+    players[2].pause();
+    players[1].loop();
+  }
+  else if(!above && cameraPos.z >= 5)
+  {
+    above = true;
+    players[1].pause();
+    players[2].loop();
+  }
+  else if(above && tmp < 0.2f)
+  {
+    players[3].play();
+  }
 }
